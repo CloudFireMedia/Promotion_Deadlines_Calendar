@@ -1,5 +1,5 @@
 var SCRIPT_NAME = ' CCN Events Promotion Calendar';
-var SCRIPT_VERSION = 'v1.1.dev_ajr'
+var SCRIPT_VERSION = 'v1.2'
 
 //settings
 var documentConfig = {
