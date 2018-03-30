@@ -1,5 +1,5 @@
 var SCRIPT_NAME = ' CCN Events Promotion Calendar';
-var SCRIPT_VERSION = 'v1.0'
+var SCRIPT_VERSION = 'v1.1.dev_ajr'
 
 //settings
 var documentConfig = {
@@ -17,10 +17,8 @@ function setupAutomation()         {PL.setupAutomation_eventsCalendar()}
 function disableAutomation()       {PL.disableAutomation_eventsCalendar()}
 function calendar_dailyTrigger()   {PL.calendar_dailyTrigger()}
 
-
 //debug
 function dumpConfig() {PL.dumpConfig()}
 function foo() {PL.foo()}
 
-
-// Original bound code, now in ChCS Github Repo - https://github.com/Christ-Church-Nashville/ChCS_Events_Promotion_Calendar v1.0
+// Original bound code now in ChCS Github Repo - https://github.com/Christ-Church-Nashville/ChCS_Events_Promotion_Calendar v1.0
