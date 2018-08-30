@@ -11,7 +11,7 @@ function calendar_checkDeadlines() {
 
   var ss = getBoundDocument();
   var spreadsheetUrl = ss.getUrl();
-  var sheet = ss.getSheetByName(config.eventsCalendar.dataSheetName);
+  var sheet = ss.getSheetByName(DATA_SHEET_NAME_);
   var values = sheet.getDataRange().getValues();
   var TIERS = ['Gold','Silver','Bronze'];
   var TIER_DEADLINES = {Bronze: 8, Silver: 9, Gold: 10}; // column number for matching promo type
@@ -154,10 +154,9 @@ function calendar_checkDeadlines() {
       .replace(/{promoType}/g,      promoType )
       .replace(/{promoDeadline}/g,  Utilities.formatDate(promoDeadline, Session.getScriptTimeZone(), 'E, MMMM d') )
       .replace(/{spreadsheetUrl}/g, spreadsheetUrl )
-      .replace(/{formUrl}/g,        config.eventsCalendar.promoFormUrl );  
+      .replace(/{formUrl}/g,        PROMO_FORM_URL_);  
 
     MailApp.sendEmail({
-      name: config.eventsCalendar.notifyFromName,
       to: to,
       subject: subject,
       htmlBody: body
@@ -175,7 +174,7 @@ function onEdit_eventsCalendar(e) {
   
   //check for exit conditions
   var sheet = range.getSheet();
-  if(sheet.getName() != config.eventsCalendar.dataSheetName) return;//only run on dataSheetName
+  if(sheet.getName() != DATA_SHEET_NAME_) return;//only run on dataSheetName
   var col = range.getColumn();
   var width = range.getWidth();
   var colsInRange = Array.apply(null, Array(width)).map(function(c,i){return col+i;});//return array of col numbers across range like [2,3,4]

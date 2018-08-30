@@ -23,10 +23,6 @@ function calendar_setupAutomation() {
   deleteTriggerByHandlerName('calendar_dailyTrigger');//remove any existing triggers so we don't have conflicts
   ScriptApp.newTrigger('calendar_dailyTrigger').timeBased().everyDays(1).atHour(5).nearMinute(30).create();//would be nice to have the time set in config
 
-  //setup onEdit trigger - not needed as this onEdit can run as a simple trigger instead
-  //  deleteTriggerByHandlerName('onEdit_eventsCalendar');
-  //  ScriptApp.newTrigger('onEdit_eventsCalendar').forSpreadsheet(SpreadsheetApp.getActive()).onEdit().create();//would be nice to have the time set in config
-
   Browser.msgBox('Enable Automation', 'Done!', Browser.Buttons.OK) 
 }
 

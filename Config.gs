@@ -21,43 +21,42 @@
 // Configuration
 // =============
 
-var SCRIPT_NAME = "GAS Framework"
-var SCRIPT_VERSION = "v0.dev"
+var SCRIPT_NAME = "GAS Framework";
+var SCRIPT_VERSION = "v1.2.dev_ajr";
 
-var PRODUCTION_VERSION_ = false
+var PRODUCTION_VERSION_ = false;
+
+var PROMO_FORM_URL_ = 'https://docs.google.com/forms/d/e/1FAIpQLSdin9MFXdUjCNqDsy3Th5a82-wgvGlIl6668NUmIggLSFULeg/viewform';
+var SPONSOR_SHEET_ID = '1iiFmdqUd-CoWtUjZxVgGcNb74dPVh-l5kuU_G5mmiHI'; 
+var TIER_DUEDATE_SHEET_ID = '1JEqPQJSiBliliqw1y-wrrdP6ikU11DPuIF72l-rN84g';    
 
 // Log Library
 // -----------
 
-var DEBUG_LOG_LEVEL_ = PRODUCTION_VERSION_ ? BBLog.Level.INFO : BBLog.Level.FINER
-var DEBUG_LOG_DISPLAY_FUNCTION_NAMES_ = PRODUCTION_VERSION_ ? BBLog.DisplayFunctionNames.NO : BBLog.DisplayFunctionNames.YES
+var DEBUG_LOG_LEVEL_ = PRODUCTION_VERSION_ ? BBLog.Level.INFO : BBLog.Level.FINER;
+var DEBUG_LOG_DISPLAY_FUNCTION_NAMES_ = PRODUCTION_VERSION_ ? BBLog.DisplayFunctionNames.NO : BBLog.DisplayFunctionNames.YES;
 
 // Assert library
 // --------------
 
-var SEND_ERROR_EMAIL_ = PRODUCTION_VERSION_ ? true : false
-var HANDLE_ERROR_ = Assert.HandleError.THROW
-var ADMIN_EMAIL_ADDRESS_ = ''
+var SEND_ERROR_EMAIL_ = PRODUCTION_VERSION_ ? true : false;
+var HANDLE_ERROR_ = Assert.HandleError.THROW;
+var ADMIN_EMAIL_ADDRESS_ = 'chcs.dev@gmail.com';
 
 // Constants/Enums
 // ===============
 
+var DATA_SHEET_NAME_ = 'Communications Director Master';
+var SPONSOR_SHEET_NAME = 'Staff';
+var TIER_DUEDATE_SHEET_NAME ='Lookup: Tier Due Dates'; 
+
 ///////////////////////
 
 
-try{
+var config = {
 
-  config.eventsCalendar = {
+  eventsCalendar : {
   
-    dataSheetName  : 'Communications Director Master',
-    notifyFromName : 'Chad Barlow <chbarlow@gmail.com>',//should this be communications@ccnash.org?
-    promoFormUrl   : 'https://docs.google.com/forms/d/e/1FAIpQLSdin9MFXdUjCNqDsy3Th5a82-wgvGlIl6668NUmIggLSFULeg/viewform',
-    formUrls : {///this has been replaced
-      //      Bronze : 'http://example.org/BronzeFormURL-update-this-in-config.eventsCalendar',///
-      //      Silver : 'http://example.org/SilverFormURL-update-this-in-config.eventsCalendar',///
-      //      Gold   : 'http://example.org/GoldFormURL-update-this-in-config.eventsCalendar',///
-    },
-    
     emails : {
     
       expired : { //one day past final (Bronze) deadline - sent to communications director - they've just missed the last chance for any promotion
@@ -99,15 +98,10 @@ promotion deadline for your team's event, [ \
 {spreadsheetUrl}'>Event Sponsorship Page</a> or reply to this email.\
 ",
       },
-      
     },
-  };
+  },
   
-  if(config.debug) config.errorNotificationEmail.push('bob+ccn-library-calendar@rupholdt.com');///debug - uncomment to let developer receive errors
-  if(config.debug) config.errorNotificationEmail = ['bob+ccn-library-calendar@rupholdt.com'];///during development, don't pester chad = turn off at golive
-  
-}
-catch(e) { err('Unable to set config.eventsCalendar') }
+} // config
 
 
 ///////////////////////
