@@ -1,7 +1,3 @@
-function fDate_LOCAL(date, format){ 
-  return Utilities.formatDate(date, Session.getScriptTimeZone(), 'MM.dd')
-}
-
 /**
  * Check event date vs deadlines, send notifications at
  * three days before deadline, 1 day before deadline and day after deadline
@@ -9,18 +5,18 @@ function fDate_LOCAL(date, format){
 
 function checkDeadlines_() {
 
-  var ss = getBoundDocument();
+  var ss = SpreadsheetApp.getActive();
   var spreadsheetUrl = ss.getUrl();
   var sheet = ss.getSheetByName(DATA_SHEET_NAME_);
   var values = sheet.getDataRange().getValues();
-  var TIERS = ['Gold','Silver','Bronze'];
-  var TIER_DEADLINES = {Bronze: 8, Silver: 9, Gold: 10}; // column number for matching promo type
   
   // Get the staff data
   // ------------------
   
-  var staffDataRange = SpreadsheetApp.openById(config.files.staffData).getDataRange();
-  var staff = getStaff_();
+  var staffDataSheetId = Config.get('STAFF_DATA_GSHEET_ID');
+  var staffSpreadsheet = SpreadsheetApp.openById(staffDataSheetId);
+  var staffDataRange = staffSpreadsheet.getDataRange();
+  var staff = getStaff_(staffSpreadsheet);
   
   // remove non-team leaders
   var teamLeads = staff.filter(function(i) {
@@ -40,37 +36,36 @@ function checkDeadlines_() {
   // Check each row
   // --------------
   
-  var today = getMidnight();
+  var today = getMidnight_();
   var startRowIndex = sheet.getFrozenRows();
   var numberOfRows = values.length;
-//  var numberOfRows = 5;
 
   for (var rowIndex = startRowIndex; rowIndex < numberOfRows; rowIndex++) {
   
     var rowNumber = rowIndex + 1;
   
-    //possble values: "yes", "no", "n/a", "error". Only process if 'no'
+    //possble values "Yes" or "No". Only process if 'no'
     
-    var promoRequested = values[rowIndex][6].toLowerCase()
+    var promoRequested = values[rowIndex][PROMO_INITIATED_COLUMN_INDEX_].toLowerCase()
     
     if (promoRequested !== 'no') {
-      bblogFine('promoRequested not "no", skip this row: ' + promoRequested + ' (' + rowNumber + ')')
+      bblogFine_('promoRequested not "no", skip this row: ' + promoRequested + ' (' + rowNumber + ')')
       continue; 
     }
     
     // Check each tier for a deadline match
     // ------------------------------------
     
-    for (var tiersIndex = 0; tiersIndex < TIERS.length; tiersIndex++) {
+    for (var tiersIndex = 0; tiersIndex < TIERS_.length; tiersIndex++) {
     
-      var promoType      = TIERS[tiersIndex];
-      var promoIndex     = TIER_DEADLINES[promoType];
+      var promoType      = TIERS_[tiersIndex];
+      var promoIndex     = TIER_DEADLINES_[promoType];
       var promoDeadline  = values[rowIndex][promoIndex];
       
-      bblogFine('rowNumber: ' + rowNumber + '/' + promoType)
+      bblogFine_('rowNumber: ' + rowNumber + '/' + promoType)
       
       if (!(promoDeadline instanceof Date)) {
-        bblogFine('promodeadline not date, skip this tier: ' + promoDeadline)
+        bblogFine_('promodeadline not date, skip this tier: ' + promoDeadline)
         continue;
       }
       
@@ -78,12 +73,12 @@ function checkDeadlines_() {
       
       //if the data difference is not -1, 1 or 3 then move onto the next tier
       if ([-1, 1, 3].indexOf(dateDiffInDays) === -1) {
-        bblogFine('dateDiffInDays ignored, skip this tier: ' + dateDiffInDays)      
+        bblogFine_('dateDiffInDays ignored, skip this tier: ' + dateDiffInDays)      
         continue;
       }
         
       if (dateDiffInDays === -1 && promoType !== 'Bronze') {
-        bblogFine('-1 dateDiffInDays ignored as not Bronze: ' + dateDiffInDays)            
+        bblogFine_('-1 dateDiffInDays ignored as not Bronze: ' + dateDiffInDays)            
         continue;
       }
       
@@ -103,48 +98,52 @@ function checkDeadlines_() {
     // The is a large difference between the deadlines for the tiers so only one email per day will
     // ever get sent as only one deadline will match
   
-    var eventDate      = values[rowIndex][3];
-    var eventName      = values[rowIndex][4];
-    var staffSponsor   = values[rowIndex][7];//this is the sponsoring team, not the person
+    var eventDate      = values[rowIndex][START_DATE_COLUMN_INDEX_];
+    var eventName      = values[rowIndex][EVENT_DATE_COLUMN_INDEX_];
+    var staffSponsor   = values[rowIndex][SPONSOR_COLUMN_INDEX_]; //this is the sponsoring team, not the person
     
     var to = teams && teams[staffSponsor] && teams[staffSponsor].email;
-    to = to || vLookup('Communications Director', staffDataRange, 4, 8);//should make a function for this like getCommunicationsDirector()
+    to = to || vlookup_('Communications Director', staffDataRange, STAFF_DATA_JOB_TITLE_COLUMN_INDEX_, 8);
         
     var toName = teams && teams[staffSponsor] && teams[staffSponsor].name;
-    toName = toName || vLookup('Communications Director', staffDataRange, 4, 0);
+    toName = toName || vlookup_('Communications Director', staffDataRange, STAFF_DATA_JOB_TITLE_COLUMN_INDEX_, 0);
     
     var body = '';
     var subject = '';
     
-    bblogInfo('dateDiffInDays: ' + dateDiffInDays + ' (' + rowNumber + ')');
+    bblogInfo_('dateDiffInDays: ' + dateDiffInDays + ' (' + rowNumber + ')');
     
     switch (dateDiffInDays) {
         
       case -1: //one day past final (Bronze) deadline - sent to communications director - they've just missed the last chance for any promotion
       
-        sheet.getRange(rowNumber, 7).setValue('N/A');//col 7 = PROMO REQUESTED
-        var staffRange = SpreadsheetApp.openById(config.files.staffData).getDataRange();
-        to = vLookup('Communications Director', staffRange, 4, 8);
-        subject = config.eventsCalendar.emails.expired.subject;
-        body = config.eventsCalendar.emails.expired.body;
+        sheet.getRange(rowNumber, PROMO_INITIATED_COLUMN_INDEX_ + 1).setValue('No');
+        var staffRange = SpreadsheetApp.openById(staffDataSheetId).getDataRange();
+        to = vlookup_('Communications Director', staffRange, STAFF_DATA_JOB_TITLE_COLUMN_INDEX_, 8);
+        subject = CONFIG_.eventsCalendar.emails.expired.subject;
+        body = CONFIG_.eventsCalendar.emails.expired.body;
         break;
         
       case 1: //day before promoType deadline - sent to team leader
         
-        subject = Utilities.formatString(config.eventsCalendar.emails.oneDay.subject, promoType, fDate_LOCAL(eventDate), eventName);;
-        body = config.eventsCalendar.emails.oneDay.body;
+        subject = Utilities.formatString(CONFIG_.eventsCalendar.emails.oneDay.subject, promoType, fDate_LOCAL(eventDate), eventName);;
+        body = CONFIG_.eventsCalendar.emails.oneDay.body;
         break;
         
       case 3: //3 days before promoType deadline
       
-        subject = Utilities.formatString(config.eventsCalendar.emails.threeDays.subject, promoType, fDate_LOCAL(eventDate), eventName);;
-        body = config.eventsCalendar.emails.threeDays.body;
+        subject = Utilities.formatString(CONFIG_.eventsCalendar.emails.threeDays.subject, promoType, fDate_LOCAL(eventDate), eventName);;
+        body = CONFIG_.eventsCalendar.emails.threeDays.body;
         break;
         
       default: 
         throw new Error('Bad date difference');
     }
-    
+
+    var promoFormId = Config.get('PROMOTION_REQUEST_FORM_ID');
+    var promoFormUrl = FormApp.openById(promoFormId).getEditUrl().replace('/edit', '/viewform');
+    var calendlyUrl = Config.get('ADMIN_CALENDLY_URL');
+
     body = body
       .replace(/{recipient}/g,      toName )
       .replace(/{staffSponsor}/g,   staffSponsor )
@@ -153,7 +152,8 @@ function checkDeadlines_() {
       .replace(/{promoType}/g,      promoType )
       .replace(/{promoDeadline}/g,  Utilities.formatDate(promoDeadline, Session.getScriptTimeZone(), 'E, MMMM d') )
       .replace(/{spreadsheetUrl}/g, spreadsheetUrl )
-      .replace(/{formUrl}/g,        PROMO_FORM_URL_);  
+      .replace(/{formUrl}/g,        promoFormUrl)
+      .replace(/{calendlyUrl}/g,    calendlyUrl);
 
     MailApp.sendEmail({
       to: to,
@@ -161,15 +161,15 @@ function checkDeadlines_() {
       htmlBody: body
     });
   
-    bblogInfo('Email sent (' + rowNumber + '). Subject: ' + subject + '\nto: ' + to + '\nbody: ' + body); 
+    bblogInfo_('Email sent (' + rowNumber + '). Subject: ' + subject + '\nto: ' + to + '\nbody: ' + body); 
 
   } // checkDeadlines_.sendEmail()
   
 } // checkDeadlines_()
 
 function onEdit_eventsCalendar(e) {
-  //  log('onEdit_eventsCalendar')
-  var range = e.range;//var range = SpreadsheetApp.getActive().getRange(a1Notation)
+
+  var range = e.range;
   
   //check for exit conditions
   var sheet = range.getSheet();
@@ -177,7 +177,7 @@ function onEdit_eventsCalendar(e) {
   var col = range.getColumn();
   var width = range.getWidth();
   var colsInRange = Array.apply(null, Array(width)).map(function(c,i){return col+i;});//return array of col numbers across range like [2,3,4]
-  if( colsInRange.indexOf(6) <0 && colsInRange.indexOf(7) <0 ) return;//edit was not in a column we are watching, skedaddle
+  if(colsInRange.indexOf(6) <0 && colsInRange.indexOf(7) <0 ) return;//edit was not in a column we are watching, skedaddle
   
   //ok, we're good to go
   var row = range.getRow();
@@ -194,30 +194,32 @@ function onEdit_eventsCalendar(e) {
     }
   }
   
-}
+} // onEdit_eventsCalendar()
 
 function dailyTrigger_(){
   formatSheet_();
-  checkDeadlines_();//run this before checkTeamSheetsForErrors_() in case it affects the other sheets (don't know that it does)
+  checkDeadlines_();//run this before checkTeamSheetsForErrors_() in case it affects the other sheets 
   if(new Date().getDay() == 1)//only run on Mondays
     checkTeamSheetsForErrors_();
 }
 
-function checkTeamSheetsForErrors_() {//triggered
+function checkTeamSheetsForErrors_() {
+
   //get staff
   //for each team leader
   //check the team sheet for errors in column C
   //notify person on sheet and cc team leader (if event owner)
-  var ss = SpreadsheetApp.openById(config.files.eventsCalendar);
-  var staff = getStaff_();//get all staff memebers
+  
+  var promoCalendarSpreadsheet = SpreadsheetApp.getActive();
+  var staff = getStaff_();
   var teamLeads = staff.filter(function(i){return i.isTeamLeader})//remove non-team leaders
   for(var t in teamLeads){
     var team = teamLeads[t].team;
-    var sheet = ss.getSheetByName(team);
-    if( ! sheet){
-      //oops!  This should not be. CHAD! We gots us a problem . . .
+    var sheet = promoCalendarSpreadsheet.getSheetByName(team);
+    if(!sheet){
+    
       MailApp.sendEmail({
-        to       : config.errorNotificationEmail.join(','),
+        to       : ADMIN_EMAIL_ADDRESS_,
         subject  : Utilities.formatString('Error in %s on %s', ss.getName(), fDate_LOCAL()),
         htmlBody : Utilities.formatString('Unable to find sheet "%s" in <a href="%s">%s</a> for Team Lead "%s <%s>"', 
                                           team, ss.getUrl(), ss.getName(), teamLeads[t].name, teamLeads[t].email)
@@ -249,3 +251,60 @@ function checkTeamSheetsForErrors_() {//triggered
     }//next row
   }//next teamlead    
 }
+
+function getStaff_(spreadsheet) {//returns [{},{},...]
+
+  if (spreadsheet === undefined) {
+    staffSpreadsheetId = Config.get('STAFF_DATA_GSHEET_ID')
+    spreadsheet = SpreadsheetApp.openById(staffSpreadsheetId)
+  } else {}
+
+  var sheet = spreadsheet.getActiveSheet();
+  var values = sheet.getDataRange().getValues();
+  values = values.slice(sheet.getFrozenRows());//remove headers if any
+  
+  var staff = values.map(function(c,i,a){
+    return {
+      name         : [c[0], c[1]].join(' '),
+      email        : c[8],
+      team         : c[11],
+      isTeamLeader : (c[12].toLowerCase()=='yes'),
+      jobTitle     : c[4],
+    };
+  },[]);
+
+  return staff;
+}
+
+function fDate_LOCAL(date, format){ 
+  return Utilities.formatDate(date, Session.getScriptTimeZone(), 'MM.dd')
+}
+
+function getMidnight_(date){
+  date = date || new Date();//set default today if not provided
+  date = new Date(date);//don't change original date
+  date.setHours(0,0,0,0);//set time to midnight
+  return date;
+}
+
+function vLookup_(needle, range, searchOffset, returnOffset) {
+
+  if (typeof searchOffset == 'undefined') {
+    searchOffset = 0;// what column to search, default to first
+  }
+  
+  if (typeof returnOffset == 'undefined') {
+    returnOffset = 1;// what column to return, default to second
+  }
+  
+  var haystack = range.getValues();
+  
+  for(var i=0; i<haystack.length; i++) {
+  
+    if(haystack[i][searchOffset] && haystack[i][searchOffset].toLowerCase() == needle.toLowerCase()) {
+      return haystack[i][returnOffset];
+    }
+  }
+  
+} // vLookup_()
+

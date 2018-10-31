@@ -26,10 +26,6 @@ var SCRIPT_VERSION = "v1.2.dev_ajr";
 
 var PRODUCTION_VERSION_ = false;
 
-var PROMO_FORM_URL_ = 'https://docs.google.com/forms/d/e/1FAIpQLSdin9MFXdUjCNqDsy3Th5a82-wgvGlIl6668NUmIggLSFULeg/viewform';
-var SPONSOR_SHEET_ID_ = '1iiFmdqUd-CoWtUjZxVgGcNb74dPVh-l5kuU_G5mmiHI'; 
-var TIER_DUEDATE_SHEET_ID_ = '1JEqPQJSiBliliqw1y-wrrdP6ikU11DPuIF72l-rN84g';    
-
 // Log Library
 // -----------
 
@@ -41,19 +37,28 @@ var DEBUG_LOG_DISPLAY_FUNCTION_NAMES_ = PRODUCTION_VERSION_ ? BBLog.DisplayFunct
 
 var SEND_ERROR_EMAIL_ = PRODUCTION_VERSION_ ? true : false;
 var HANDLE_ERROR_ = Assert.HandleError.THROW;
-var ADMIN_EMAIL_ADDRESS_ = 'chcs.dev@gmail.com';
+var ADMIN_EMAIL_ADDRESS_ = 'dev@cloudfire.media';
 
 // Constants/Enums
 // ===============
+
+// Staff data sheet
+var STAFF_DATA_JOB_TITLE_COLUMN_INDEX_ = 4
+
+// Promotion Deadslines Calendar
+var START_DATE_COLUMN_INDEX_ = 3;
+var EVENT_DATE_COLUMN_INDEX_ = 4;
+var PROMO_INITIATED_COLUMN_INDEX_ = 6;
+var SPONSOR_COLUMN_INDEX_ = 7;
 
 var DATA_SHEET_NAME_ = 'Communications Director Master';
 var SPONSOR_SHEET_NAME_ = 'Staff';
 var TIER_DUEDATE_SHEET_NAME_ ='Lookup: Tier Due Dates'; 
 
-///////////////////////
+var TIERS_ = ['Gold','Silver','Bronze'];
+var TIER_DEADLINES_ = {Bronze: 9, Silver: 10, Gold: 11}; // column number for matching promo type
 
-
-var config = {
+var CONFIG_ = {
 
   eventsCalendar : {
   
@@ -76,9 +81,9 @@ This is an automated notice that the \
 promotion deadline for your team's event, [ \
 {eventDate} ] \
 {eventName}, is tomorrow. This is the last reminder for a {promoType} promotion for your event.<br><br>If you would like to schedule promotion for your team's event please submit a <a href='\
-{formUrl}\'>{promoType} Promotion Request</a> or schedule a <a href='https://calendly.com/chadbarlow/promo'>Promotion Planning Meeting</a> by \
+{formUrl}\'>{promoType} Promotion Request</a> or schedule a <a href='{calendlyUrl}'>Promotion Planning Meeting</a> by \
 {promoDeadline}. If you do not want to request \
-{promoType} promotion for this event, you may ignore this email. </b><br><br>Chad<br><br>--<br>P.S. If appropriate, please forward this email to the team member responsible for initiating a promotion request. <br><br> Need more information? Visit your team's <a href='\
+{promoType} promotion for this event, you may ignore this email. </b><br><br>Promotions Admin<br><br>--<br>P.S. If appropriate, please forward this email to the team member responsible for initiating a promotion request. <br><br> Need more information? Visit your team's <a href='\
 {spreadsheetUrl}'>Event Sponsorship Page</a> or reply to this email.\
 ",
       },
@@ -92,19 +97,16 @@ promotion deadline for your team's event, [ \
 {eventName}, is in three days. <br><br>If you would like to request \
 {promoType} promotion for your team's event, please submit a <a href='\
 {formUrl}\
-'>Promotion Request</a> or schedule a <a href='https://calendly.com/chadbarlow/promo'>Promotion Planning Meeting</a> by \
+'>Promotion Request</a> or schedule a <a href='{calendlyUrl}'>Promotion Planning Meeting</a> by \
 {promoDeadline}. If you do not want to request \
-{promoType} promotion for this event, you may ignore this email. </b><br><br>Chad<br><br>--<br>P.S. If appropriate, please forward this email to the team member responsible to initiating a promotion request. <br><br> Need more information? Visit your team's <a href='\
+{promoType} promotion for this event, you may ignore this email. </b><br><br>Promotions Admin<br><br>--<br>P.S. If appropriate, please forward this email to the team member responsible to initiating a promotion request. <br><br> Need more information? Visit your team's <a href='\
 {spreadsheetUrl}'>Event Sponsorship Page</a> or reply to this email.\
 ",
       },
     },
   },
   
-} // config
-
-
-///////////////////////
+} // CONFIG_ 
 
 // Function Template
 // -----------------

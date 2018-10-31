@@ -57,7 +57,8 @@ function deleteRow_() {
 //macro menu item 'Initialize Promotion Deadlines'
 function calculateDeadlines_(){
   SpreadsheetApp.getActiveSpreadsheet().toast("Working...","",-1);
-  var tierDateSheet = SpreadsheetApp.openById(TIER_DUEDATE_SHEET_ID_).getSheetByName(TIER_DUEDATE_SHEET_NAME_);
+  var promotionRequestResponsesSheetId = Config.get('PROMOTION_FORM_RESPONSES_GSHEET_ID');
+  var tierDateSheet = SpreadsheetApp.openById(promotionRequestResponsesSheetId).getSheetByName(TIER_DUEDATE_SHEET_NAME_);
   var spreadSheet = SpreadsheetApp.getActive();
   // getting tiers name from tiers due Date sheet
   var tier1Name = tierDateSheet.getRange('A2').getValue();
@@ -89,9 +90,9 @@ function calculateDeadlines_(){
     spreadSheet.unhideColumn(rangeColumnK)
   }
   // save value of tier1, tier2 and tier3 for later use
-  PropertiesService.getScriptProperties().setProperty('tier1DueDate', tier1DueDate);
-  PropertiesService.getScriptProperties().setProperty('tier2DueDate', tier2DueDate);
-  PropertiesService.getScriptProperties().setProperty('tier3DueDate', tier3DueDate);
+  PropertiesService.getDocumentProperties().setProperty('tier1DueDate', tier1DueDate);
+  PropertiesService.getDocumentProperties().setProperty('tier2DueDate', tier2DueDate);
+  PropertiesService.getDocumentProperties().setProperty('tier3DueDate', tier3DueDate);
   var lastRow = spreadSheet.getLastRow();
   // loop through each cell in column D to update column I, J K
   for (var c = 4; c < lastRow+1; c++) {
@@ -151,9 +152,9 @@ function onEdit_(e)
   var thisCol = e.range.getColumn(); // get column in which value is changed
   if (thisCol != 4) return; // if change is not in column D exist macro
   // getting value of tier1, tier2 and tier3 from properties service that is saved during initialization setup
-  var tier1Value=   PropertiesService.getScriptProperties().getProperty('tier1DueDate');
-  var tier2Value =  PropertiesService.getScriptProperties().getProperty('tier2DueDate');
-  var tier3Value = PropertiesService.getScriptProperties().getProperty('tier3DueDate');
+  var tier1Value=   PropertiesService.getDocumentProperties().getProperty('tier1DueDate');
+  var tier2Value =  PropertiesService.getDocumentProperties().getProperty('tier2DueDate');
+  var tier3Value = PropertiesService.getDocumentProperties().getProperty('tier3DueDate');
   // check tier1, tier2 and tier3 value is set during initialization setup
   if(tier1Value == null){ 
     Browser.msgBox('Error! \\n\\nDefault values for tier1, tier2 and tier3 Promotion Deadlines have not been assigned, and deadlines for the selected row cannot be automatically updated. \\n\\nPlease run \'Macros > Initialize Promotion Deadlines\' to assign default Promotion Deadlines values.');
@@ -215,7 +216,8 @@ function newEventPopup_() {
 
 // macro for getting sponsors to fill  sponsor dropdownlist of new event form
 function fillSponsor_() {
-  var staffSheet = SpreadsheetApp.openById(SPONSOR_SHEET_ID_).getSheetByName(SPONSOR_SHEET_NAME_);
+  var staffSheetId = Config.get('STAFF_DATA_GSHEET_ID');
+  var staffSheet = SpreadsheetApp.openById(staffSheetId).getSheetByName(SPONSOR_SHEET_NAME_);
   var lastRow = staffSheet.getLastRow();
   var optionsValue = staffSheet.getRange("L3:L" + lastRow).getValues(); 
   var optionsArray = new Array();
@@ -240,7 +242,8 @@ function fillSponsor_() {
 
 // macro for getting tiers to fill  tier dropdownlist of new event form
 function fillTier_() {
-  var tierSheet = SpreadsheetApp.openById(TIER_DUEDATE_SHEET_ID_).getSheetByName(TIER_DUEDATE_SHEET_NAME_);
+  var promotionRequestResponsesSheetId = Config.get('PROMOTION_FORM_RESPONSES_GSHEET_ID');
+  var tierSheet = SpreadsheetApp.openById(promotionRequestResponsesSheetId).getSheetByName(TIER_DUEDATE_SHEET_NAME_);
   var lastRow = tierSheet.getLastRow();
   var optionsValue = tierSheet.getRange("A2:A" + lastRow).getValues();;
   var optionsArray = new Array();

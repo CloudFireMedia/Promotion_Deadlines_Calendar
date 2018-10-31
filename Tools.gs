@@ -1,6 +1,9 @@
-function backupHeader_(){
-  var sheet = SpreadsheetApp.getActive().getSheetByName(DATA_SHEET_NAME);
-  if( ! SpreadsheetApp.getActiveSheet().getName() == sheet.getName()){
+function backupHeader_() {
+
+  var sheet = SpreadsheetApp.getActive().getSheetByName(DATA_SHEET_NAME_);
+  
+  if( ! SpreadsheetApp.getActiveSheet().getName() == sheet.getName()) {
+  
     if(Browser.msgBox('Backup Header', "\
 Only the "+sheet.getName()+' sheet can be backed up.\\n\\n\
 Switch to it?\
@@ -43,7 +46,7 @@ Continue to backup header (and replace existing backup if any)?\
     verticalAlignments : range.getVerticalAlignments(),
     wraps : range.getWraps(),
   }
-  PropertiesService.getScriptProperties().setProperty('epc:backup_header', JSON.stringify(header))
+  PropertiesService.getDocumentProperties().setProperty('epc:backup_header', JSON.stringify(header))
   Browser.msgBox('Backup Header', "Backup complete.", Browser.Buttons.OK)
 }
 
@@ -63,7 +66,7 @@ Switch to it?\
   }
 
   //check to see if there is a backup
-  var backup = JSON.parse(PropertiesService.getScriptProperties().getProperty('epc:backup_header'));
+  var backup = JSON.parse(PropertiesService.getDocumentProperties().getProperty('epc:backup_header'));
   if( ! backup){
     Browser.msgBox('Restore Header', "There is no header backup to restore.", Browser.Buttons.OK);
     return;

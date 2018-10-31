@@ -40,14 +40,7 @@ var EVENT_HANDLERS_ = {
   deleteRow:                 ['deleteRow()',                 'delete row',                     deleteRow_],
   calculateDeadlines:        ['calculateDeadlines()',        'calculate deadlines',            calculateDeadlines_],
   newEventPopup:             ['newEventPopup()',             'show event popup',               newEventPopup_],
-  prepareNewYearsData:       ['prepareNewYearsData()',       'prepare New Years data',         prepareNewYearsData_],
-  repopulateBulletins_:      ['repopulateBulletins_()',      'repopulate bulletins',           repopulateBulletins_],  
   formatSheet:               ['formatSheet()',               'format sheet',                   formatSheet_],
-  hideRows:                  ['hideRows()',                  'hide rows',                      hideRows_],
-  removeEmptyRows:           ['removeEmptyRows()',           'remove empty rows',              removeEmptyRows_],
-  colorBorders:              ['colorBorders()',              'color borders',                  colorBorders_],
-  setWeeksFormat:            ['setWeeksFormat()',            'setWeeksFormat',                 setWeeksFormat_],
-  setEventsFormat:           ['setEventsFormat()',           'set events format',              setEventsFormat_],
   restoreHeader:             ['restoreHeader()',             'restore header',                 restoreHeader_],
   backupHeader:              ['backupHeader()',              'backup header',                  backupHeader_],
   setupAutomation:           ['setupAutomation()',           'setup automation',               setupAutomation_],
@@ -63,14 +56,7 @@ function addRowBelow(args)              {return eventHandler_(EVENT_HANDLERS_.ad
 function deleteRow(args)                {return eventHandler_(EVENT_HANDLERS_.deleteRow, args)}
 function calculateDeadlines(args)       {return eventHandler_(EVENT_HANDLERS_.calculateDeadlines, args)}
 function newEventPopup(args)            {return eventHandler_(EVENT_HANDLERS_.newEventPopup, args)}
-function prepareNewYearsData(args)      {return eventHandler_(EVENT_HANDLERS_.prepareNewYearsData, args)}
-function repopulateBulletins(args)      {return eventHandler_(EVENT_HANDLERS_.repopulateBulletins, args)}
 function formatSheet(args)              {return eventHandler_(EVENT_HANDLERS_.formatSheet, args)}
-function hideRows(args)                 {return eventHandler_(EVENT_HANDLERS_.hideRows, args)}
-function removeEmptyRows(args)          {return eventHandler_(EVENT_HANDLERS_.removeEmptyRows, args)}
-function colorBorders(args)             {return eventHandler_(EVENT_HANDLERS_.colorBorders, args)}
-function setWeeksFormat(args)           {return eventHandler_(EVENT_HANDLERS_.setWeeksFormat, args)}
-function setEventsFormat(args)          {return eventHandler_(EVENT_HANDLERS_.setEventsFormat, args)}
 function restoreHeader(args)            {return eventHandler_(EVENT_HANDLERS_.restoreHeader, args)}
 function backupHeader(args)             {return eventHandler_(EVENT_HANDLERS_.backupHeader, args)}
 function setupAutomation(args)          {return eventHandler_(EVENT_HANDLERS_.setupAutomation, args)}
@@ -104,7 +90,7 @@ function eventHandler_(config, args) {
 
   try {
 
-    var userEmail = Session.getActiveUser().getEmail()
+    var userEmail = Session.getEffectiveUser().getEmail()
 
     Log_ = BBLog.getLog({
       level:                DEBUG_LOG_LEVEL_, 
