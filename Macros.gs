@@ -1,12 +1,14 @@
 
 function addRowBelow_() {
 
-  SpreadsheetApp.getActiveSpreadsheet().toast("Working...","",-1);
+  var spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+  spreadsheet.toast("Working...","",-1);
   var spreadSheet = SpreadsheetApp.getActive();
   var selectedRange= spreadSheet.getActiveRange().getValues(); 
   var selectedCellRow = spreadSheet.getCurrentCell().getRow();
   // check either more than one row or merged cell is selected
   if(selectedRange.length>1){
+    spreadsheet.toast("","",0.01); // hack to close toast
     Browser.msgBox('Error! \\n\\nYou have selected more than one row. Please select only \\none cell or row and run the function again.');
   }
   else{ // if only one cell is selected
@@ -55,7 +57,7 @@ function deleteRow_() {
 //macro menu item 'Initialize Promotion Deadlines'
 function calculateDeadlines_(){
   SpreadsheetApp.getActiveSpreadsheet().toast("Working...","",-1);
-  var tierDateSheet = SpreadsheetApp.openById(TIER_DUEDATE_SHEET_ID).getSheetByName(TIER_DUEDATE_SHEET_NAME);
+  var tierDateSheet = SpreadsheetApp.openById(TIER_DUEDATE_SHEET_ID_).getSheetByName(TIER_DUEDATE_SHEET_NAME_);
   var spreadSheet = SpreadsheetApp.getActive();
   // getting tiers name from tiers due Date sheet
   var tier1Name = tierDateSheet.getRange('A2').getValue();
@@ -142,97 +144,6 @@ function calculateDeadlines_(){
   
 }; // calculateDeadlines()
 
-// macro for getting sponsors to fill  sponsor dropdownlist of new event form
-function fillSponsor_() {
-  var staffSheet = SpreadsheetApp.openById(SPONSOR_SHEET_ID).getSheetByName(SPONSOR_SHEET_NAME);
-  var lastRow = staffSheet.getLastRow();
-  var optionsValue = staffSheet.getRange("L3:L" + lastRow).getValues(); 
-  var optionsArray = new Array();
-  // loop throgh each cell in range to fill optionArray with unique values
-  for(var i = 0; i < lastRow; i++) {
-    if(optionsValue[i]!= "N/A" && optionsValue[i]!= "" && optionsValue[i]!= null){
-      // code to check duplication
-      var duplicate = false; 
-      // loop through optionArray to check if it already exist in optionArray or not
-      for(var j = 0; j < optionsArray.length; j++){
-        if(optionsArray[j][0] == optionsValue[i][0]){
-          duplicate = true; 
-        }
-      } // end of inner loop
-      if(!duplicate){
-      optionsArray.push(optionsValue[i]);
-      }
-    } 
-  } // end of outer loop
-  return optionsArray; 
-}; // end of fillSponsor function
-
-// macro for getting tiers to fill  tier dropdownlist of new event form
-function fillTier_() {
-  var tierSheet = SpreadsheetApp.openById(TIER_DUEDATE_SHEET_ID).getSheetByName(TIER_DUEDATE_SHEET_NAME);
-  var lastRow = tierSheet.getLastRow();
-  var optionsValue = tierSheet.getRange("A2:A" + lastRow).getValues();;
-  var optionsArray = new Array();
-  // loop throgh each cell in range to fill optionArray
-  for(var i = 0; i < lastRow; i++) {
-    optionsArray.push(optionsValue[i]);
-  } // end of loop
-  return optionsArray;
-}; // end of fillTier macro
-
-// macro that executes when New event form is submitted
-function processResponse_(eventArray){
-  var eventTitle = eventArray[0];
-  var eventTier = eventArray[1];
-  var dateSplit = eventArray[2].split("/");
-  var eventDate = new Date(dateSplit[2],dateSplit[0]-1,dateSplit[1]);
-  var eventSponsor =eventArray[3];
-  var spreadSheet = SpreadsheetApp.getActive(); //Communications Director Master sheet
-  var lastRow = spreadSheet.getLastRow();
-  // code for setting new event ordered chronologically by Col D.
-  var dataValues = spreadSheet.getRange("D4:D" + lastRow).getValues(); 
-  var flag = 0; // to check if row found in chronologically order, 0 = not found, 1 = found
-  for (var i=0; i < dataValues.length; i++) {
-    if (new Date(dataValues[i]) >= eventDate) { 
-      flag = 1; 
-      // equality operter is not possible for date
-      if((new Date(dataValues[i])).getTime() == (eventDate).getTime()){
-        // if date is already exist
-        index = i+4;
-      }
-      // if date is not already exist
-      else
-      {
-        index = i+3;
-      }
-      //index = i+3; // row number of found row in chronologically order, 
-      spreadSheet.getRange("D" + index).activate(); 
-      AddRowBelow(); // function in macros.gs
-      index = index +1; // row number of new event row
-      spreadSheet.getRange("C"+ index).setValue(eventTier);
-      spreadSheet.getRange("D"+ index).setValue(eventDate) ;
-      spreadSheet.getRange("E"+ index).setValue(eventTitle); 
-      spreadSheet.getRange("H"+ index).setValue(eventSponsor) ;
-      onEdit_({range: spreadSheet.getRange("D"+ index)});
-      spreadSheet.getRange("E"+ index).activate();
-      break;
-    } 
-  }
-  // if no row found in chronologically order so place new event at the end, event is latest
-  if(flag == 0){ 
-    spreadSheet.getRange("D" + lastRow).activate();
-    index = lastRow +1;
-    AddRowBelow();
-    spreadSheet.getRange("C"+ index).setValue(eventTier);
-    spreadSheet.getRange("D"+ index).setValue(eventDate);
-    spreadSheet.getRange("E"+ index).setValue(eventTitle); 
-    spreadSheet.getRange("H"+ index).setValue(eventSponsor) ;
-    spreadSheet.getRange("E"+ index).activate();
-  }
-  
-} // end of function
-
-
 //  macro to update tier1, tier2 and tier3 when value of cell  in column D (Start Date) is changed
 function onEdit_(e) 
 {
@@ -295,9 +206,47 @@ function onEdit_(e)
 
 function newEventPopup_() {
   var spreadSheet = SpreadsheetApp.getActive();
-  var htmlService = HtmlService.createHtmlOutputFromFile('!NEW_Form')
+  var htmlService = HtmlService.createHtmlOutputFromFile('Form')
     .setWidth(750)  // width of form
-    .setHeight(450) // height of form
+    .setHeight(480) // height of form
     .setSandboxMode(HtmlService.SandboxMode.NATIVE);
   spreadSheet.show(htmlService);
 } // end of NewEventPopup macro
+
+// macro for getting sponsors to fill  sponsor dropdownlist of new event form
+function fillSponsor_() {
+  var staffSheet = SpreadsheetApp.openById(SPONSOR_SHEET_ID_).getSheetByName(SPONSOR_SHEET_NAME_);
+  var lastRow = staffSheet.getLastRow();
+  var optionsValue = staffSheet.getRange("L3:L" + lastRow).getValues(); 
+  var optionsArray = new Array();
+  // loop throgh each cell in range to fill optionArray with unique values
+  for(var i = 0; i < lastRow; i++) {
+    if(optionsValue[i]!= "N/A" && optionsValue[i]!= "" && optionsValue[i]!= null){
+      // code to check duplication
+      var duplicate = false; 
+      // loop through optionArray to check if it already exist in optionArray or not
+      for(var j = 0; j < optionsArray.length; j++){
+        if(optionsArray[j][0] == optionsValue[i][0]){
+          duplicate = true; 
+        }
+      } // end of inner loop
+      if(!duplicate){
+      optionsArray.push(optionsValue[i]);
+      }
+    } 
+  } // end of outer loop
+  return optionsArray; 
+}; // end of fillSponsor function
+
+// macro for getting tiers to fill  tier dropdownlist of new event form
+function fillTier_() {
+  var tierSheet = SpreadsheetApp.openById(TIER_DUEDATE_SHEET_ID_).getSheetByName(TIER_DUEDATE_SHEET_NAME_);
+  var lastRow = tierSheet.getLastRow();
+  var optionsValue = tierSheet.getRange("A2:A" + lastRow).getValues();;
+  var optionsArray = new Array();
+  // loop throgh each cell in range to fill optionArray
+  for(var i = 0; i < lastRow; i++) {
+    optionsArray.push(optionsValue[i]);
+  } // end of loop
+  return optionsArray;
+}; // end of fillTier macro

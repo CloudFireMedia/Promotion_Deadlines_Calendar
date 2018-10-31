@@ -1,4 +1,5 @@
-function calendar_disableAutomation() {
+function disableAutomation_() {
+
   var owner = SpreadsheetApp.getActive().getOwner().getEmail();
   var user = Session.getActiveUser().getEmail();
   if( user != owner){
@@ -6,12 +7,13 @@ function calendar_disableAutomation() {
     return;
   }
 
-  deleteTriggerByHandlerName('calendar_dailyTrigger');
+  deleteTriggerByHandlerName('dailyTrigger');
   
   Browser.msgBox('Disable Automation', "Automation has been disabled.\\nThe daily notifcations will not be sent until this is enabled again.", Browser.Buttons.OK);
 }
 
-function calendar_setupAutomation() {
+function setupAutomation_() {
+
   var owner = SpreadsheetApp.getActive().getOwner().getEmail();
   var user = Session.getActiveUser().getEmail();
   if( user != owner){
@@ -20,8 +22,8 @@ function calendar_setupAutomation() {
   }
   
   //setup daily trigger
-  deleteTriggerByHandlerName('calendar_dailyTrigger');//remove any existing triggers so we don't have conflicts
-  ScriptApp.newTrigger('calendar_dailyTrigger').timeBased().everyDays(1).atHour(5).nearMinute(30).create();//would be nice to have the time set in config
+  deleteTriggerByHandlerName('dailyTrigger');//remove any existing triggers so we don't have conflicts
+  ScriptApp.newTrigger('dailyTrigger').timeBased().everyDays(1).atHour(5).nearMinute(30).create();//would be nice to have the time set in config
 
   Browser.msgBox('Enable Automation', 'Done!', Browser.Buttons.OK) 
 }

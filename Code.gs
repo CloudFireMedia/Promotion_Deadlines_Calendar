@@ -47,7 +47,7 @@ function prepareNewYearsData_() {
   
 } // prepareNewYearsData()
 
-function applyFormula_(){ //menu -- also fixed by Restore Header
+function applyFormula_(){ 
   var sheet = SpreadsheetApp.getActive().getSheetByName(config.eventsCalendar.dataSheetName);
   var values = sheet.getDataRange().getValues();
   //fix the WEEK column formula
@@ -60,31 +60,7 @@ function applyFormula_(){ //menu -- also fixed by Restore Header
   ]]);
 }
 
-function calendar_updateEventStatus(row) {
-
-  var ss = SpreadsheetApp.openById(config.files.eventsCalendar);
-  var sheet = ss.getSheetByName(config.eventsCalendar.dataSheetName);
-  var values = sheet.getDataRange().getValues();
-
-  var listedOnWebCal = values[row][5].toLowerCase();
-  var promoRequested = values[row][6].toLowerCase();
-  var status = 
-      promoRequested   == 'no'                             ? 'Awaiting promotion request'
-      : promoRequested == 'yes' && listedOnWebCal == 'yes' ? 'Promotion Scheduled'
-      : promoRequested == 'yes' && listedOnWebCal != "yes" ? 'Pending review'//no || n/a
-      : null;//promoRequested == 'n/a'
-  
-  if(status) {
-    sheet.getRange(row, 12).setValue(status);
-  } else {
-    sheet.getRange(row, 12).setValue('N/A');//status
-    sheet.getRange(row, 3).setValue('N/A');//promo type
-    sheet.getRange(row, 6).setValue('N/A');//web cal
-  }
-
-}
-
-function calendar_getStaff() {//returns [{},{},...]
+function getStaff_() {//returns [{},{},...]
 
   var sheet = SpreadsheetApp.openById(config.files.staffData).getActiveSheet();
   var values = sheet.getDataRange().getValues();
@@ -101,14 +77,6 @@ function calendar_getStaff() {//returns [{},{},...]
   },[]);
 
   return staff;
-}
-
-function calendar_getTeamLeader(team) {
-  var sheet = SpreadsheetApp.openById(config.files.staffData);
-  var values = sheet.getDataRange().getValues();
-  for(var v=sheet.getFrozenRows(); v<values1.length; v++)
-    if(team == values[v][11] && values[v][12] == "Yes")
-        return values[v][8] + ',' + values[v][0] + " " + values[v][1];//email, fl
 }
 
 function repopulateBulletins_() { 

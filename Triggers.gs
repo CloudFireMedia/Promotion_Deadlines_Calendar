@@ -7,7 +7,7 @@ function fDate_LOCAL(date, format){
  * three days before deadline, 1 day before deadline and day after deadline
  */
 
-function calendar_checkDeadlines() {
+function checkDeadlines_() {
 
   var ss = getBoundDocument();
   var spreadsheetUrl = ss.getUrl();
@@ -20,9 +20,9 @@ function calendar_checkDeadlines() {
   // ------------------
   
   var staffDataRange = SpreadsheetApp.openById(config.files.staffData).getDataRange();
-  var staff = calendar_getStaff();
+  var staff = getStaff_();
   
-  //remove non-team leaders
+  // remove non-team leaders
   var teamLeads = staff.filter(function(i) {
     return i.isTeamLeader;
   })
@@ -123,7 +123,6 @@ function calendar_checkDeadlines() {
       case -1: //one day past final (Bronze) deadline - sent to communications director - they've just missed the last chance for any promotion
       
         sheet.getRange(rowNumber, 7).setValue('N/A');//col 7 = PROMO REQUESTED
-//        calendar_updateEventStatus(rowNumber);
         var staffRange = SpreadsheetApp.openById(config.files.staffData).getDataRange();
         to = vLookup('Communications Director', staffRange, 4, 8);
         subject = config.eventsCalendar.emails.expired.subject;
@@ -164,9 +163,9 @@ function calendar_checkDeadlines() {
   
     bblogInfo('Email sent (' + rowNumber + '). Subject: ' + subject + '\nto: ' + to + '\nbody: ' + body); 
 
-  } // calendar_checkDeadlines.sendEmail()
+  } // checkDeadlines_.sendEmail()
   
-} // calendar_checkDeadlines()
+} // checkDeadlines_()
 
 function onEdit_eventsCalendar(e) {
   //  log('onEdit_eventsCalendar')
@@ -197,20 +196,20 @@ function onEdit_eventsCalendar(e) {
   
 }
 
-function calendar_dailyTrigger(){
-  calendar_formatSheet();
-  calendar_checkDeadlines();//run this before calendar_checkTeamSheetsForErrors() in case it affects the other sheets (don't know that it does)
+function dailyTrigger_(){
+  formatSheet_();
+  checkDeadlines_();//run this before checkTeamSheetsForErrors_() in case it affects the other sheets (don't know that it does)
   if(new Date().getDay() == 1)//only run on Mondays
-    calendar_checkTeamSheetsForErrors();
+    checkTeamSheetsForErrors_();
 }
 
-function calendar_checkTeamSheetsForErrors() {//triggered
+function checkTeamSheetsForErrors_() {//triggered
   //get staff
   //for each team leader
   //check the team sheet for errors in column C
   //notify person on sheet and cc team leader (if event owner)
   var ss = SpreadsheetApp.openById(config.files.eventsCalendar);
-  var staff = calendar_getStaff();//get all staff memebers
+  var staff = getStaff_();//get all staff memebers
   var teamLeads = staff.filter(function(i){return i.isTeamLeader})//remove non-team leaders
   for(var t in teamLeads){
     var team = teamLeads[t].team;
@@ -242,7 +241,7 @@ function calendar_checkTeamSheetsForErrors() {//triggered
 ", team, sheetUrl);
       
       MailApp.sendEmail({
-        name     : 'communications@ccnash.org',
+        name     : ADMIN_EMAIL_ADDRESS_,
         to       : to,
         subject  : subject,
         htmlBody : body
@@ -250,4 +249,3 @@ function calendar_checkTeamSheetsForErrors() {//triggered
     }//next row
   }//next teamlead    
 }
-
