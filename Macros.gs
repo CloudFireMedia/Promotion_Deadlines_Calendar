@@ -6,6 +6,7 @@ function addRowBelow_() {
   var spreadSheet = SpreadsheetApp.getActive();
   var selectedRange= spreadSheet.getActiveRange().getValues(); 
   var selectedCellRow = spreadSheet.getCurrentCell().getRow();
+  
   // check either more than one row or merged cell is selected
   if(selectedRange.length>1){
     spreadsheet.toast("","",0.01); // hack to close toast
@@ -55,23 +56,28 @@ function deleteRow_() {
 };
 
 //macro menu item 'Initialize Promotion Deadlines'
-function calculateDeadlines_(){
+function calculateDeadlines_() {
+
   SpreadsheetApp.getActiveSpreadsheet().toast("Working...","",-1);
   var promotionRequestResponsesSheetId = Config.get('PROMOTION_FORM_RESPONSES_GSHEET_ID');
   var tierDateSheet = SpreadsheetApp.openById(promotionRequestResponsesSheetId).getSheetByName(TIER_DUEDATE_SHEET_NAME_);
   var spreadSheet = SpreadsheetApp.getActive();
+  
   // getting tiers name from tiers due Date sheet
   var tier1Name = tierDateSheet.getRange('A2').getValue();
   var tier2Name = tierDateSheet.getRange('A3').getValue();
   var tier3Name = tierDateSheet.getRange('A4').getValue();
+  
   // getting tiers due dates from tiers due Date sheet
   var tier1DueDate = tierDateSheet.getRange('B2').getValue();
   var tier2DueDate = tierDateSheet.getRange('B3').getValue();
   var tier3DueDate = tierDateSheet.getRange('B4').getValue();
+  
   // writing teirs name to active sheet
   spreadSheet.getRange('I3').setValue(tier1Name);
   spreadSheet.getRange('J3').setValue(tier2Name);
   spreadSheet.getRange('K3').setValue(tier3Name);
+  
   // getting range
   var rangeColumnJ = spreadSheet.getRange("J1");
   var rangeColumnK = spreadSheet.getRange("K1");
@@ -145,15 +151,15 @@ function calculateDeadlines_(){
   
 }; // calculateDeadlines()
 
-//  macro to update tier1, tier2 and tier3 when value of cell  in column D (Start Date) is changed
+//  macro to update tier1, tier2 and tier3 when value of cell in column D (Start Date) is changed
 function onEdit_(e) 
 {
   var spreadSheet = SpreadsheetApp.getActive();
   var thisCol = e.range.getColumn(); // get column in which value is changed
   if (thisCol != 4) return; // if change is not in column D exist macro
   // getting value of tier1, tier2 and tier3 from properties service that is saved during initialization setup
-  var tier1Value=   PropertiesService.getDocumentProperties().getProperty('tier1DueDate');
-  var tier2Value =  PropertiesService.getDocumentProperties().getProperty('tier2DueDate');
+  var tier1Value = PropertiesService.getDocumentProperties().getProperty('tier1DueDate');
+  var tier2Value = PropertiesService.getDocumentProperties().getProperty('tier2DueDate');
   var tier3Value = PropertiesService.getDocumentProperties().getProperty('tier3DueDate');
   // check tier1, tier2 and tier3 value is set during initialization setup
   if(tier1Value == null){ 
@@ -253,3 +259,62 @@ function fillTier_() {
   } // end of loop
   return optionsArray;
 }; // end of fillTier macro
+
+// macro that executes when New event form is submitted
+function processResponse_(eventArray) {
+
+  var eventTitle = eventArray[0];
+  var eventTier = eventArray[1];
+  var dateSplit = eventArray[2].split("/");
+  var eventDate = new Date(dateSplit[2],dateSplit[0]-1,dateSplit[1]);
+  var eventSponsor = eventArray[3];
+  var spreadSheet = SpreadsheetApp.getActive(); //Communications Director Master sheet
+  var lastRow = spreadSheet.getLastRow();
+  // code for setting new event ordered chronologically by Col D.
+  var dataValues = spreadSheet.getRange("D4:D" + lastRow).getValues(); 
+  var flag = 0; // to check if row found in chronologically order, 0 = not found, 1 = found
+  
+  for (var i=0; i < dataValues.length; i++) {
+  
+    if (new Date(dataValues[i]) >= eventDate) { 
+    
+      flag = 1; 
+      
+      // equality operter is not possible for date
+      if((new Date(dataValues[i])).getTime() == (eventDate).getTime()){
+        // if date is already exist
+        index = i+4;
+      }
+      
+      // if date is not already exist
+      else{
+        index = i+3;
+      }
+      
+      //index = i+3; // row number of found row in chronologically order, 
+      spreadSheet.getRange("D" + index).activate(); 
+      addRowBelow_(); // function in macros.gs
+      index = index +1; // row number of new event row
+      spreadSheet.getRange("C"+ index).setValue(eventTier);
+      spreadSheet.getRange("D"+ index).setValue(eventDate) ;
+      spreadSheet.getRange("E"+ index).setValue(eventTitle); 
+      spreadSheet.getRange("H"+ index).setValue(eventSponsor) ;
+      onEdit_({range: spreadSheet.getRange("D"+ index)});
+      spreadSheet.getRange("E"+ index).activate();
+      break;
+    } 
+  }
+  
+  // if no row found in chronologically order so place new event at the end, event is latest
+  if(flag == 0){ 
+    spreadSheet.getRange("D" + lastRow).activate();
+    index = lastRow +1;
+    addRowBelow_();
+    spreadSheet.getRange("C"+ index).setValue(eventTier);
+    spreadSheet.getRange("D"+ index).setValue(eventDate);
+    spreadSheet.getRange("E"+ index).setValue(eventTitle); 
+    spreadSheet.getRange("H"+ index).setValue(eventSponsor) ;
+    spreadSheet.getRange("E"+ index).activate();
+  }
+  
+} // end of function

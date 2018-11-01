@@ -50,6 +50,8 @@ var EVENT_HANDLERS_ = {
   dailyTrigger:              ['dailyTrigger()',              'run daily trigger',              dailyTrigger_],
   fillSponsor:               ['fillSponsor()',               'fill sponsor in popup',          fillSponsor_],
   fillTier:                  ['fillTier()',                  'fill tiers in popup',            fillTier_],
+  processResponse:           ['processResponse()',           'process response',               processResponse_],
+  onEdit:                    ['onEdit()',                    'onEdit',                         onEdit_],
 }
 
 function addRowBelow(args)              {return eventHandler_(EVENT_HANDLERS_.addRowBelow, args)}
@@ -66,6 +68,8 @@ function checkTeamSheetsForErrors(args) {return eventHandler_(EVENT_HANDLERS_.ch
 function dailyTrigger(args)             {return eventHandler_(EVENT_HANDLERS_.dailyTrigger, args)}
 function fillSponsor(args)              {return eventHandler_(EVENT_HANDLERS_.fillSponsor, args)}
 function fillTier(args)                 {return eventHandler_(EVENT_HANDLERS_.fillTier, args)}
+function processResponse(args)          {return eventHandler_(EVENT_HANDLERS_.processResponse, args)}
+function onEdit(args)                   {return eventHandler_(EVENT_HANDLERS_.onEdit, args)}
 
 // Private Functions
 // =================

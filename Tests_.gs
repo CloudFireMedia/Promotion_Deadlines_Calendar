@@ -1,5 +1,10 @@
-function tets_misc() {
+function test_misc() {
   var a = SpreadsheetApp.openById('15mrKpNDi7RZ8ddDPKGdJICOA2a1jJhmHPFZzO-4kL5Y').getRange('G175').getValue()
+  debugger
+}
+
+function test_getStaff() {
+  var s = getStaff_()
   debugger
 }
 
@@ -9,7 +14,7 @@ function tets_misc() {
 
 function bblogFine_(what, optSubject){ 
 
-  if (!config.debug) {
+  if (PRODUCTION_VERSION_) {
     return;
   }
 
@@ -28,7 +33,7 @@ function bblogInfo_(what, optSubject) {
 
 function bblogError_(what, optSubject){ 
 
-//  var logLevel = (config.debug) ? BBLog.Level.FINE : BBLog.Level.INFO;
+//  var logLevel = (PRODUCTION_VERSION_) ? BBLog.Level.FINE : BBLog.Level.INFO;
 
   BBLog
     .getLog({level: BBLog.Level.SEVERE})

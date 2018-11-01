@@ -48,7 +48,6 @@ function formatSheet_() {
     
     for (var v=0; v<values.length; v++) {
     
-    
       if (new Date(values[v]) >= today) {
         break;//sets v to the last row to hide
       }

@@ -5,6 +5,9 @@
 
 function checkDeadlines_() {
 
+  // Get the Promotion Deadlines Calendar data
+  // -----------------------------------------
+
   var ss = SpreadsheetApp.getActive();
   var spreadsheetUrl = ss.getUrl();
   var sheet = ss.getSheetByName(DATA_SHEET_NAME_);
@@ -65,7 +68,7 @@ function checkDeadlines_() {
       bblogFine_('rowNumber: ' + rowNumber + '/' + promoType)
       
       if (!(promoDeadline instanceof Date)) {
-        bblogFine_('promodeadline not date, skip this tier: ' + promoDeadline)
+        bblogFine_('promo deadline not date, skip this tier: ' + promoDeadline)
         continue;
       }
       
@@ -94,6 +97,8 @@ function checkDeadlines_() {
   // -----------------
   
   function sendEmail() {
+  
+    bblogFine_('Sending email');
   
     // The is a large difference between the deadlines for the tiers so only one email per day will
     // ever get sent as only one deadline will match
@@ -126,13 +131,13 @@ function checkDeadlines_() {
         
       case 1: //day before promoType deadline - sent to team leader
         
-        subject = Utilities.formatString(CONFIG_.eventsCalendar.emails.oneDay.subject, promoType, fDate_LOCAL(eventDate), eventName);;
+        subject = Utilities.formatString(CONFIG_.eventsCalendar.emails.oneDay.subject, promoType, getFormattedDate_(eventDate), eventName);;
         body = CONFIG_.eventsCalendar.emails.oneDay.body;
         break;
         
       case 3: //3 days before promoType deadline
       
-        subject = Utilities.formatString(CONFIG_.eventsCalendar.emails.threeDays.subject, promoType, fDate_LOCAL(eventDate), eventName);;
+        subject = Utilities.formatString(CONFIG_.eventsCalendar.emails.threeDays.subject, promoType, getFormattedDate_(eventDate), eventName);;
         body = CONFIG_.eventsCalendar.emails.threeDays.body;
         break;
         
@@ -147,7 +152,7 @@ function checkDeadlines_() {
     body = body
       .replace(/{recipient}/g,      toName )
       .replace(/{staffSponsor}/g,   staffSponsor )
-      .replace(/{eventDate}/g,      fDate_LOCAL(eventDate) )
+      .replace(/{eventDate}/g,      getFormattedDate_(eventDate) )
       .replace(/{eventName}/g,      eventName )
       .replace(/{promoType}/g,      promoType )
       .replace(/{promoDeadline}/g,  Utilities.formatDate(promoDeadline, Session.getScriptTimeZone(), 'E, MMMM d') )
@@ -203,35 +208,55 @@ function dailyTrigger_(){
     checkTeamSheetsForErrors_();
 }
 
+/**
+ * for each team leader
+ *  check the team sheet for errors in column C
+ *  notify person on sheet and cc team leader (if event owner)
+ */
+
 function checkTeamSheetsForErrors_() {
 
-  //get staff
-  //for each team leader
-  //check the team sheet for errors in column C
-  //notify person on sheet and cc team leader (if event owner)
-  
-  var promoCalendarSpreadsheet = SpreadsheetApp.getActive();
+  var ss = SpreadsheetApp.getActive();
   var staff = getStaff_();
-  var teamLeads = staff.filter(function(i){return i.isTeamLeader})//remove non-team leaders
-  for(var t in teamLeads){
+  
+  //remove non-team leaders
+  var teamLeads = staff.filter(function(i) { 
+    return i.isTeamLeader
+  })
+  
+  for (var t in teamLeads) {
+  
     var team = teamLeads[t].team;
-    var sheet = promoCalendarSpreadsheet.getSheetByName(team);
-    if(!sheet){
+    var sheet = ss.getSheetByName(team);
+    
+    bblogFine_('team: ' + team);
+    
+    if (sheet === null) {
+    
+      var subject = Utilities.formatString('Error in %s on %s', ss.getName(), getFormattedDate_());
+      var htmlBody = Utilities.formatString('Unable to find sheet "%s" in <a href="%s">%s</a> for Team Lead "%s <%s>".', 
+                                          team, ss.getUrl(), ss.getName(), teamLeads[t].name, teamLeads[t].email);
     
       MailApp.sendEmail({
         to       : ADMIN_EMAIL_ADDRESS_,
-        subject  : Utilities.formatString('Error in %s on %s', ss.getName(), fDate_LOCAL()),
-        htmlBody : Utilities.formatString('Unable to find sheet "%s" in <a href="%s">%s</a> for Team Lead "%s <%s>"', 
-                                          team, ss.getUrl(), ss.getName(), teamLeads[t].name, teamLeads[t].email)
+        subject  : subject,
+        htmlBody : htmlBody,
       })
+      
+      bblogInfo_('Email sent to:\nSubject: ' + subject + '\nto: ' + ADMIN_EMAIL_ADDRESS_ + '\nbody: ' + htmlBody);             
       continue;
     }
     
     //sheet found, get data and check for errors
     var data = sheet.getDataRange().getValues();
-    for(var row in data) {
+    
+    for (var row in data) {
+    
       var promoRequested = data[row][2];
-      if(promoRequested.toLowerCase() != "error") continue;//all good, next row please
+      
+      if (promoRequested.toLowerCase() !== "error") {
+        continue;
+      }
       
       //else, let team leader know about the error
       var to = teamLeads[t].email;
@@ -239,7 +264,7 @@ function checkTeamSheetsForErrors_() {
       var subject = "Action required!";
       var body = Utilities.formatString("\
 %s Leader:<br><br>One or more of the events on your team's Event Sponsorship Page contains incorrect or incomplete information. PROMOTION WILL NOT BE SCHEDULED FOR YOUR TEAM'S EVENT UNLESS YOU TAKE ACTION. Please visit your team's <a href='\
-%s'>Event Sponsorship Page</a>, find the row(s) highlighted in red, and follow the instructions in the 'Promotion Status' column.<br><br>CCN Communications\
+%s'>Event Sponsorship Page</a>, find the row(s) highlighted in red, and follow the instructions in the 'Promotion Status' column.<br><br>Promotion Admin\
 ", team, sheetUrl);
       
       MailApp.sendEmail({
@@ -248,63 +273,10 @@ function checkTeamSheetsForErrors_() {
         subject  : subject,
         htmlBody : body
       });
+      
+      bblogInfo_('Email sent to:\nSubject: ' + subject + '\nto: ' + to + '\nbody: ' + body); 
+            
     }//next row
-  }//next teamlead    
-}
-
-function getStaff_(spreadsheet) {//returns [{},{},...]
-
-  if (spreadsheet === undefined) {
-    staffSpreadsheetId = Config.get('STAFF_DATA_GSHEET_ID')
-    spreadsheet = SpreadsheetApp.openById(staffSpreadsheetId)
-  } else {}
-
-  var sheet = spreadsheet.getActiveSheet();
-  var values = sheet.getDataRange().getValues();
-  values = values.slice(sheet.getFrozenRows());//remove headers if any
+  }//next teamlead   
   
-  var staff = values.map(function(c,i,a){
-    return {
-      name         : [c[0], c[1]].join(' '),
-      email        : c[8],
-      team         : c[11],
-      isTeamLeader : (c[12].toLowerCase()=='yes'),
-      jobTitle     : c[4],
-    };
-  },[]);
-
-  return staff;
-}
-
-function fDate_LOCAL(date, format){ 
-  return Utilities.formatDate(date, Session.getScriptTimeZone(), 'MM.dd')
-}
-
-function getMidnight_(date){
-  date = date || new Date();//set default today if not provided
-  date = new Date(date);//don't change original date
-  date.setHours(0,0,0,0);//set time to midnight
-  return date;
-}
-
-function vLookup_(needle, range, searchOffset, returnOffset) {
-
-  if (typeof searchOffset == 'undefined') {
-    searchOffset = 0;// what column to search, default to first
-  }
-  
-  if (typeof returnOffset == 'undefined') {
-    returnOffset = 1;// what column to return, default to second
-  }
-  
-  var haystack = range.getValues();
-  
-  for(var i=0; i<haystack.length; i++) {
-  
-    if(haystack[i][searchOffset] && haystack[i][searchOffset].toLowerCase() == needle.toLowerCase()) {
-      return haystack[i][returnOffset];
-    }
-  }
-  
-} // vLookup_()
-
+} // checkTeamSheetsForErrors_()

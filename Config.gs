@@ -21,7 +21,7 @@
 // Configuration
 // =============
 
-var SCRIPT_NAME = "GAS Framework";
+var SCRIPT_NAME = "Promotion Deadliness Calendar";
 var SCRIPT_VERSION = "v1.2.dev_ajr";
 
 var PRODUCTION_VERSION_ = false;
@@ -30,7 +30,7 @@ var PRODUCTION_VERSION_ = false;
 // -----------
 
 var DEBUG_LOG_LEVEL_ = PRODUCTION_VERSION_ ? BBLog.Level.INFO : BBLog.Level.FINER;
-var DEBUG_LOG_DISPLAY_FUNCTION_NAMES_ = PRODUCTION_VERSION_ ? BBLog.DisplayFunctionNames.NO : BBLog.DisplayFunctionNames.YES;
+var DEBUG_LOG_DISPLAY_FUNCTION_NAMES_ = PRODUCTION_VERSION_ ? BBLog.DisplayFunctionNames.NO : BBLog.DisplayFunctionNames.NO;
 
 // Assert library
 // --------------
@@ -43,20 +43,33 @@ var ADMIN_EMAIL_ADDRESS_ = 'dev@cloudfire.media';
 // ===============
 
 // Staff data sheet
-var STAFF_DATA_JOB_TITLE_COLUMN_INDEX_ = 4
+
+var STAFF_DATA_FIRST_NAME_COLUMN_INDEX_   = 0;
+var STAFF_DATA_LAST_NAME_COLUMN_INDEX_    = 1;
+var STAFF_DATA_BIRTHDAY_COLUMN_INDEX_     = 2;
+// var STAFF_DATA_LAST_NAME_COLUMN_INDEX_ = 3; // Leagacy
+var STAFF_DATA_JOB_TITLE_COLUMN_INDEX_    = 4;
+var STAFF_DATA_STATUS_COLUMN_INDEX_       = 5;
+var STAFF_DATA_EXTENSION_COLUMN_INDEX_    = 6;
+var STAFF_DATA_CELL_COLUMN_INDEX_         = 7;
+var STAFF_DATA_EMAIL_COLUMN_INDEX_        = 8;
+var STAFF_DATA_SECOND_PHONE_COLUMN_INDEX_ = 9;
+var STAFF_DATA_TEAM_COLUMN_INDEX_         = 11;
+var STAFF_DATA_LEADER_COLUMN_INDEX_       = 12;
+var STAFF_DATA_MEMBER_COLUMN_INDEX_       = 13;
 
 // Promotion Deadslines Calendar
-var START_DATE_COLUMN_INDEX_ = 3;
-var EVENT_DATE_COLUMN_INDEX_ = 4;
+var START_DATE_COLUMN_INDEX_      = 3;
+var EVENT_DATE_COLUMN_INDEX_      = 4;
 var PROMO_INITIATED_COLUMN_INDEX_ = 6;
-var SPONSOR_COLUMN_INDEX_ = 7;
+var SPONSOR_COLUMN_INDEX_         = 7;
 
 var DATA_SHEET_NAME_ = 'Communications Director Master';
 var SPONSOR_SHEET_NAME_ = 'Staff';
 var TIER_DUEDATE_SHEET_NAME_ ='Lookup: Tier Due Dates'; 
 
 var TIERS_ = ['Gold','Silver','Bronze'];
-var TIER_DEADLINES_ = {Bronze: 9, Silver: 10, Gold: 11}; // column number for matching promo type
+var TIER_DEADLINES_ = {Bronze: 8, Silver: 9, Gold: 10}; // column index for matching promo type
 
 var CONFIG_ = {
 
