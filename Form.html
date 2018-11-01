@@ -1,0 +1,104 @@
+<!-- Form.html  -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.3.1.min.js"></script>
+  	<link href="https://netdna.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.css" rel="stylesheet"/> 
+    <link href = "https://code.jquery.com/ui/1.10.4/themes/ui-lightness/jquery-ui.css"rel = "stylesheet">
+    <script src = "https://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+    <style type="text/css">
+      body {
+		font-family: Arial, Helvetica, sans-serif;
+		margin: 0;
+		padding: 0;
+		}
+     *  {
+		outline: none;
+		}
+		.row {
+		margin: 0 0 10px;
+		}
+    </style>
+
+</head>
+<body>
+  <h1 class="text-info" style = "text-align:center">New Event Form</h1>
+  <br>
+  <form id="frmNewEvent">
+    <div class="form-group">
+      <label for="ddlEvent">Event:</label>
+      <input type="text" class="form-control" id="txtTitle" required>
+    </div>
+    <div class="form-group">
+      <label for="ddlTier">Tier:</label>
+      <select class="form-control" id="ddlTier">
+      </select>
+    </div>
+    <div class="form-group"> <!-- Date input -->
+      <label class="control-label" for="sdate">Start Date:</label>
+      <input class="form-control" id="sdate" name="date" placeholder="mm/dd/yyyy" type="text"   required/>
+    </div>
+    <div class="form-group">
+      <label for="ddlSponsor">Sponsor:</label>
+      <select class="form-control" id="ddlSponsor">
+      </select>
+    </div>
+    <br>
+    <button type="submit" class="btn btn-success" onclick="ValidateForm();">Submit</button>
+  </form>
+  
+ <script>
+
+$(function(){
+  { //cross browser datepicker
+    $('#sdate').datepicker();
+  }
+});
+
+$(function() {
+ google.script.run.withSuccessHandler(buildSponsorOptionList)
+      .fillSponsor();
+});
+
+$(function() {
+  google.script.run.withSuccessHandler(buildTierOptionList)
+      .fillTier();
+});
+// function to fill sponser dropdownlist
+function buildSponsorOptionList(options) {
+  var list = $('#ddlSponsor');
+  list.empty();
+  for (var i = 0; i < options.length; i++) {        
+    list.append('<option value="'+options[i] +'">'+options[i] +'</option>');
+  }
+};
+
+// function to fill teir dropdownlist
+function buildTierOptionList(options) {
+  var list = $('#ddlTier');
+  list.empty();
+  for (var i = 0; i < options.length-1; i++) {
+    list.append('<option value="'+options[i] +'">'+options[i] +'</option>');
+  }
+};
+
+// function to validate input
+function ValidateForm() {
+  if ($('#txtTitle').val()  == '' || $('#sdate').val()  == '') {
+    return false;
+  }
+  var responseArray = new Array();
+  responseArray[0] = $('#txtTitle').val();
+  responseArray[1] = $('#ddlTier').val();
+  responseArray[2] = $('#sdate').val()+"";
+  responseArray[3] = $('#ddlSponsor').val();
+  google.script.run.processResponse(responseArray);
+  google.script.host.close();
+}
+
+
+
+</script>
+
+ </body>
+</html>
