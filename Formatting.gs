@@ -32,15 +32,22 @@ function formatSheet_() {
     // -----------------
     
     function getLastPopulatedRow(sheet) {
+    
       var values = sheet.getDataRange().getValues();
-      for (var i=values.length-1; i>0; i--)
-        if (values[i].join('').length) return ++i;
-      return 0; // or 1 depending on your needs
+      
+      for (var i=values.length-1; i>0; i--) {
+      
+        if (values[i].join('').length) {
+          return ++i;
+        }
+      }
+      
+      return 0; 
     }
     
   }
   
-  //Hide all rows before today's date
+  // Hide all rows before today's date
   function hideRows_() { 
   
     var values = sheet.getRange(sheet.getFrozenRows()+1, 4, sheet.getLastRow(), 1).getValues();

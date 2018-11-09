@@ -14,17 +14,15 @@
 // Config.gs
 // =========
 //
-// Dev: AndrewRoberts.net
-//
 // All the constants and configuration settings
 
 // Configuration
 // =============
 
 var SCRIPT_NAME = "Promotion Deadliness Calendar";
-var SCRIPT_VERSION = "v1.2.dev_ajr";
+var SCRIPT_VERSION = "v1.3";
 
-var PRODUCTION_VERSION_ = false;
+var PRODUCTION_VERSION_ = true;
 
 // Log Library
 // -----------
