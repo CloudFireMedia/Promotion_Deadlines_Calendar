@@ -55,7 +55,7 @@ function deleteRow_() {
   SpreadsheetApp.getActiveSpreadsheet().toast("Row deleted.");
 };
 
-//macro menu item 'Initialize Promotion Deadlines'
+//macro menu item 'Calculate Deadlines'
 function calculateDeadlines_() {
 
   SpreadsheetApp.getActiveSpreadsheet().toast("Working...","",-1);
@@ -163,7 +163,7 @@ function onEdit_(e)
   var tier3Value = PropertiesService.getDocumentProperties().getProperty('tier3DueDate');
   // check tier1, tier2 and tier3 value is set during initialization setup
   if(tier1Value == null){ 
-    Browser.msgBox('Error! \\n\\nDefault values for tier1, tier2 and tier3 Promotion Deadlines have not been assigned, and deadlines for the selected row cannot be automatically updated. \\n\\nPlease run \'Macros > Initialize Promotion Deadlines\' to assign default Promotion Deadlines values.');
+    Browser.msgBox('Error! \\n\\nDefault values for tier1, tier2 and tier3 Promotion Deadlines have not been assigned, and deadlines for the selected row cannot be automatically updated. \\n\\nPlease run \'Macros > Calculate Deadlines\' to assign default Promotion Deadlines values.');
     return;
   }
   var eidtRow = spreadSheet.getCurrentCell().getRow();
