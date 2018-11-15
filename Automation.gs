@@ -16,16 +16,20 @@ function setupAutomation_() {
 
   var owner = SpreadsheetApp.getActive().getOwner().getEmail();
   var user = Session.getActiveUser().getEmail();
-  if( user != owner){
+  var activeSpreadsheet = SpreadsheetApp.getActive();
+  
+  if (user != owner && activeSpreadsheet !== null){
     Browser.msgBox('Enable Automation', "Sorry.  Automation can only be enabled by the sheet owner.\\nPlease ask "+owner+" to run this.", Browser.Buttons.OK);
     return;
   }
   
   //setup daily trigger
   deleteTriggerByHandlerName_('dailyTrigger');//remove any existing triggers so we don't have conflicts
-  ScriptApp.newTrigger('dailyTrigger').timeBased().everyDays(1).atHour(5).nearMinute(30).create();// would be nice to have the time set in config
+  ScriptApp.newTrigger('dailyTrigger').timeBased().everyDays(1).atHour(5).nearMinute(30).create();
 
-  Browser.msgBox('Enable Automation', 'Done!', Browser.Buttons.OK) 
+  if (activeSpreadsheet !== null) {
+    Browser.msgBox('Enable Automation', 'Done!', Browser.Buttons.OK) 
+  }
 }
 
 function deleteTriggerByHandlerName_(handlerName){ // Delete a trigger based on the name of the function it excecutes

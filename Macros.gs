@@ -1,10 +1,15 @@
 
 function addRowBelow_() {
 
-  var spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
-  spreadsheet.toast("Working...","",-1);
   var spreadSheet = SpreadsheetApp.getActive();
-  var selectedRange= spreadSheet.getActiveRange().getValues(); 
+  
+  if (spreadSheet === null) {
+    spreadSheet = SpreadsheetApp.openById(TEST_PDC_SPREADSHEET_ID_)
+  }
+
+  spreadSheet.toast("Working...","",-1); // !!! AJR !!!
+  
+  var selectedRange = spreadSheet.getActiveRange().getValues(); 
   var selectedCellRow = spreadSheet.getCurrentCell().getRow();
   
   // check either more than one row or merged cell is selected
@@ -13,39 +18,55 @@ function addRowBelow_() {
     Browser.msgBox('Error! \\n\\nYou have selected more than one row. Please select only \\none cell or row and run the function again.');
   }
   else{ // if only one cell is selected
+  
     if((selectedRange[0]+"").indexOf(',')==-1){
       spreadSheet.getRange(selectedCellRow+':'+selectedCellRow).activate(); // select whole row of selected cell
     }
+    
     spreadSheet.getActiveSheet().insertRowsAfter(spreadSheet.getActiveRange().getLastRow(), 1);
-    spreadSheet.getActiveRange().offset(spreadSheet.getActiveRange().getNumRows(), 0, 1, spreadSheet.getActiveRange().getNumColumns()).activate();
-    spreadSheet.getCurrentCell().offset(0, 3).activate();
+    var numRows = spreadSheet.getActiveRange().getNumRows();
+    var numColumns = spreadSheet.getActiveRange().getNumColumns();
+    spreadSheet.getActiveRange().offset(numRows, 0, 1, numColumns).activate(); // Select the new row
+
+    // Copy the start date to the new row
+    spreadSheet.getCurrentCell().offset(0, 3).activate(); // Select the start date in the new row
     spreadSheet.getCurrentCell().offset(-1, 0).copyTo(spreadSheet.getActiveRange(), SpreadsheetApp.CopyPasteType.PASTE_NORMAL, false);
+        
     spreadSheet.getCurrentCell().offset(0, 2).activate();
     spreadSheet.getCurrentCell().setRichTextValue(SpreadsheetApp.newRichTextValue()
                                                   .setText('No')
                                                   .setTextStyle(0, 2, SpreadsheetApp.newTextStyle().setFontSize(7).build())
                                                   .build());
+                                                  
     spreadSheet.getCurrentCell().offset(0, 1).activate();
     spreadSheet.getCurrentCell().setRichTextValue(SpreadsheetApp.newRichTextValue()
                                                   .setText('No')
                                                   .setTextStyle(0, 2, SpreadsheetApp.newTextStyle().setFontSize(7).build())
                                                   .build());
+    // Copy the deadlines                                              
     spreadSheet.getCurrentCell().offset(0, 2).activate();
     spreadSheet.getCurrentCell().offset(-1, 0, 1, 3).copyTo(spreadSheet.getActiveRange(), SpreadsheetApp.CopyPasteType.PASTE_NORMAL, false);
+
+    // Copy the promo status - disabled for now as it has been replaced by sheet formula
     spreadSheet.getCurrentCell().offset(0, 3).activate();
-    spreadSheet.getCurrentCell().offset(-1, 0).copyTo(spreadSheet.getActiveRange(), SpreadsheetApp.CopyPasteType.PASTE_NORMAL, false);
-    spreadSheet.getCurrentCell().offset(0, -8).activate();
-    while(spreadSheet.getRange('A'+(selectedCellRow)).getValue()==''){ // go to top merged cell in column A of selected cell
-      selectedCellRow =selectedCellRow-1;
+//    spreadSheet.getCurrentCell().offset(-1, 0).copyTo(spreadSheet.getActiveRange(), SpreadsheetApp.CopyPasteType.PASTE_NORMAL, false);
+
+    // go to top merged cell in column A of selected cell
+    spreadSheet.getCurrentCell().offset(0, -10).activate();
+    while(spreadSheet.getRange('A'+(selectedCellRow)).getValue()==''){ 
+      selectedCellRow--;
     }
-    var newRow = spreadSheet.getCurrentCell().getRow(); // get new added row
+
+    var newRow = spreadSheet.getCurrentCell().getRow(); // get new added row number
     var nextValue = spreadSheet.getRange('A'+(newRow+1)).getValue();
+
     if(nextValue != '') {
       spreadSheet.getRange('A' + selectedCellRow + ':'+ 'A'+ newRow ).activate().merge();  // merge cell in column A of new added row
       spreadSheet.getRange('B' + selectedCellRow + ':'+ 'B'+ newRow ).activate().mergeVertically(); // merge cell in column B of new added row
     }     
+
     spreadSheet.getRange('D'+newRow).activate(); // select new added row's cell in column D
-    SpreadsheetApp.getActiveSpreadsheet().toast("Row added.");
+    SpreadsheetApp.getActiveSpreadsheet().toast("Row added."); // !!! AJR !!!
   }
 };
 
@@ -59,6 +80,7 @@ function deleteRow_() {
 function calculateDeadlines_() {
 
   SpreadsheetApp.getActiveSpreadsheet().toast("Working...","",-1);
+  
   var promotionRequestResponsesSheetId = Config.get('PROMOTION_FORM_RESPONSES_GSHEET_ID');
   var tierDateSheet = SpreadsheetApp.openById(promotionRequestResponsesSheetId).getSheetByName(TIER_DUEDATE_SHEET_NAME_);
   var spreadSheet = SpreadsheetApp.getActive();
@@ -85,9 +107,10 @@ function calculateDeadlines_() {
   if (tier2DueDate ==''){
     spreadSheet.hideColumn(rangeColumnJ);
   }
-  else{
+  else {
     spreadSheet.unhideColumn(rangeColumnJ)
   }
+  
    // hiding/ unhiding column K 
   if (tier3DueDate ==''){
     spreadSheet.hideColumn(rangeColumnK);
@@ -95,34 +118,45 @@ function calculateDeadlines_() {
   else{
     spreadSheet.unhideColumn(rangeColumnK)
   }
+  
   // save value of tier1, tier2 and tier3 for later use
   PropertiesService.getDocumentProperties().setProperty('tier1DueDate', tier1DueDate);
   PropertiesService.getDocumentProperties().setProperty('tier2DueDate', tier2DueDate);
   PropertiesService.getDocumentProperties().setProperty('tier3DueDate', tier3DueDate);
+  
   var lastRow = spreadSheet.getLastRow();
+  
   // loop through each cell in column D to update column I, J K
   for (var c = 4; c < lastRow+1; c++) {
+  
     var startDate  = spreadSheet.getRange('D' + c ).getValue();
+    
     //finding value for column I
     var newTier1 = new Date(startDate.getTime()-tier1DueDate*3600000*24);
     var day = (newTier1+"").substring(0,3);
+    
     // if day is Sunday than move it to Monday
     if(day=='Sun'){
       newTier1 = new Date(newTier1.getTime()+1*3600000*24);
     }
+    
     // if day is Saturday than move it to Friday
     if(day=='Sat'){
       newTier1 = new Date(newTier1.getTime()-1*3600000*24);
     }
+    
     spreadSheet.getRange('I' + c ).setValue(newTier1); // setting value of active cell for Column I = tier1
+    
     //Finding Value for Column J if tier2 is  not empty
     if(tier2DueDate != ''){
       var newTier2 = new Date(startDate.getTime()-tier2DueDate*3600000*24);
       day = (newTier2+"").substring(0,3);
+      
       // if day is Sunday than move it to Monday
       if(day=='Sun'){
         newTier2 = new Date(newTier2.getTime()+1*3600000*24);
       }
+      
       // if day is Saturday than move it to Friday
       if(day=='Sat'){
         newTier2 = new Date(newTier2.getTime()-1*3600000*24);
@@ -132,16 +166,20 @@ function calculateDeadlines_() {
     
     //finding value for column K if tier3 is not empty
     if(tier3DueDate != ''){
+    
       var newTier3 = new Date(startDate.getTime()-tier3DueDate*3600000*24);
       day = (newTier3+"").substring(0,3);
+      
       // if day is Sunday than move it to Monday
       if(day=='Sun'){
         newTier3 = new Date(newTier3.getTime()+1*3600000*24);
       }
+      
       // if day is Saturday than move it to Friday
       if(day=='Sat'){
         var newTier3 = new Date(newTier3.getTime()-1*3600000*24);
       }
+      
       spreadSheet.getRange('K' + c ).setValue(newTier3); // setting value of active cell for Column K = tier2
     }
     
@@ -152,8 +190,8 @@ function calculateDeadlines_() {
 }; // calculateDeadlines()
 
 //  macro to update tier1, tier2 and tier3 when value of cell in column D (Start Date) is changed
-function onEdit_(e) 
-{
+function onEdit_(e) {
+
   var spreadSheet = SpreadsheetApp.getActive();
   var thisCol = e.range.getColumn(); // get column in which value is changed
   if (thisCol != 4) return; // if change is not in column D exist macro
@@ -269,7 +307,13 @@ function processResponse_(eventArray) {
   var eventDate = new Date(dateSplit[2],dateSplit[0]-1,dateSplit[1]);
   var eventSponsor = eventArray[3];
   var spreadSheet = SpreadsheetApp.getActive(); //Communications Director Master sheet
+  
+  if (spreadSheet === null) {
+    spreadSheet = SpreadsheetApp.openById(TEST_PDC_SPREADSHEET_ID_)
+  }
+  
   var lastRow = spreadSheet.getLastRow();
+  
   // code for setting new event ordered chronologically by Col D.
   var dataValues = spreadSheet.getRange("D4:D" + lastRow).getValues(); 
   var flag = 0; // to check if row found in chronologically order, 0 = not found, 1 = found

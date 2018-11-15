@@ -9,6 +9,13 @@ function checkDeadlines_() {
   // -----------------------------------------
 
   var ss = SpreadsheetApp.getActive();
+  
+  if (ss === null && !PRODUCTION_VERSION_) {
+    ss = SpreadsheetApp.openById(TEST_PDC_SPREADSHEET_ID_);
+  } else {
+    throw new Error('No active spreadsheet');
+  }
+  
   var spreadsheetUrl = ss.getUrl();
   var sheet = ss.getSheetByName(DATA_SHEET_NAME_);
   var values = sheet.getDataRange().getValues();
@@ -202,7 +209,7 @@ function onEdit_eventsCalendar(e) {
 } // onEdit_eventsCalendar()
 
 function dailyTrigger_(){
-  formatSheet_();
+//  formatSheet_(); // TODO - https://trello.com/c/zBmW3avV
   checkDeadlines_();//run this before checkTeamSheetsForErrors_() in case it affects the other sheets 
   if(new Date().getDay() == 1)//only run on Mondays
     checkTeamSheetsForErrors_();

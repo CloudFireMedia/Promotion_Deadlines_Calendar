@@ -92,6 +92,8 @@ function onEdit(args)                   {return eventHandler_(EVENT_HANDLERS_.on
 
 function eventHandler_(config, args) {
 
+  console.log(SCRIPT_VERSION)
+
   try {
 
     var userEmail = Session.getEffectiveUser().getEmail()

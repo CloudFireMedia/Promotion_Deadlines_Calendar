@@ -3,11 +3,22 @@ function test_misc() {
   debugger
 }
 
-function test_getStaff() {
-  var s = getStaff_()
-  debugger
+function test_checkDeadlines() {
+  checkDeadlines_()
 }
 
+function test_getStaff() {
+  var s = getStaff_()
+}
+
+
+function test_processResponse() {
+  processResponse_(['Test2053', 'Bronze', '12/10/2018', 'Worship Team'])
+}
+
+function test_addRowBelow() {
+  addRowBelow_()
+}
 
 // BBLog
 // -----
@@ -19,7 +30,10 @@ function bblogFine_(what, optSubject){
   }
 
   BBLog
-    .getLog({level: BBLog.Level.FINE})
+    .getLog({
+      level: BBLog.Level.FINE,
+      displayFunctionNames: DEBUG_LOG_DISPLAY_FUNCTION_NAMES_,
+    })
     .fine(what + ' - ' + (optSubject || ''))
   
 }
@@ -27,30 +41,19 @@ function bblogFine_(what, optSubject){
 function bblogInfo_(what, optSubject) { 
 
   BBLog
-    .getLog()
+    .getLog({
+      displayFunctionNames: DEBUG_LOG_DISPLAY_FUNCTION_NAMES_,
+    })
     .info(what + ' - ' + (optSubject || ''))
 }
 
 function bblogError_(what, optSubject){ 
 
-//  var logLevel = (PRODUCTION_VERSION_) ? BBLog.Level.FINE : BBLog.Level.INFO;
-
   BBLog
-    .getLog({level: BBLog.Level.SEVERE})
-    .severe(what + ' - ' + (optSubject || ''))
-
-/*
-  try { 
-    Tools.tellBob(what, config.clientName, config.projectName, optSubject) 
-  }
-  catch(e){ 
-    write('Tools library inaccessible or not installed.');
-    MailApp.sendEmail({
-      to:'bob+christchurchnashville@rupholdt.com',
-      subject:'Error on Christ Church Nashville app',
-      body:'Tools library inaccessible or not installed in CCN Promotions Library.'
+    .getLog({
+      level: BBLog.Level.SEVERE,
+      displayFunctionNames: DEBUG_LOG_DISPLAY_FUNCTION_NAMES_,
     })
-  }
-*/  
+    .severe(what + ' - ' + (optSubject || ''))
 
 } // bblogError_()
