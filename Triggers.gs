@@ -10,10 +10,12 @@ function checkDeadlines_() {
 
   var ss = SpreadsheetApp.getActive();
   
-  if (ss === null && !PRODUCTION_VERSION_) {
-    ss = SpreadsheetApp.openById(TEST_PDC_SPREADSHEET_ID_);
-  } else {
-    throw new Error('No active spreadsheet');
+  if (ss === null) {
+    if (!PRODUCTION_VERSION_) {
+      ss = SpreadsheetApp.openById(TEST_PDC_SPREADSHEET_ID_);
+    } else {
+      throw new Error('No active spreadsheet');
+    }
   }
   
   var spreadsheetUrl = ss.getUrl();
