@@ -80,7 +80,7 @@ function checkDeadlines_() {
         continue;
       }
         
-      if (dateDiffInDays === -1 && promoType !== 'Bronze') {
+      if (dateDiffInDays === -1 && promoType !== 'bronze') {
         bblogFine_('-1 dateDiffInDays ignored as not Bronze: ' + dateDiffInDays)            
         continue;
       }
@@ -202,7 +202,7 @@ function onEdit_eventsCalendar(e) {
 } // onEdit_eventsCalendar()
 
 function dailyTrigger_(){
-  formatSheet_();
+//  formatSheet_(); // TODO - https://trello.com/c/zBmW3avV
   checkDeadlines_();//run this before checkTeamSheetsForErrors_() in case it affects the other sheets 
   if(new Date().getDay() == 1)//only run on Mondays
     checkTeamSheetsForErrors_();

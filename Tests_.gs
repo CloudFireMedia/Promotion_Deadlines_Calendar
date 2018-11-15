@@ -9,6 +9,11 @@ function test_getStaff() {
 }
 
 
+function test_processResponse() {
+  processResponse_(['Test2053', 'Bronze', '12/10/2018', 'Worship Team'])
+  debugger
+}
+
 // BBLog
 // -----
 

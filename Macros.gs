@@ -1,10 +1,15 @@
 
 function addRowBelow_() {
 
-  var spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
-  spreadsheet.toast("Working...","",-1);
   var spreadSheet = SpreadsheetApp.getActive();
-  var selectedRange= spreadSheet.getActiveRange().getValues(); 
+  
+  if (spreadSheet === null) {
+    spreadSheet = SpreadsheetApp.openById(TEST_PDC_SPREADSHEET_ID_)
+  }
+
+  spreadsheet.toast("Working...","",-1);
+  
+  var selectedRange = spreadSheet.getActiveRange().getValues(); 
   var selectedCellRow = spreadSheet.getCurrentCell().getRow();
   
   // check either more than one row or merged cell is selected
@@ -59,6 +64,7 @@ function deleteRow_() {
 function calculateDeadlines_() {
 
   SpreadsheetApp.getActiveSpreadsheet().toast("Working...","",-1);
+  
   var promotionRequestResponsesSheetId = Config.get('PROMOTION_FORM_RESPONSES_GSHEET_ID');
   var tierDateSheet = SpreadsheetApp.openById(promotionRequestResponsesSheetId).getSheetByName(TIER_DUEDATE_SHEET_NAME_);
   var spreadSheet = SpreadsheetApp.getActive();
@@ -85,9 +91,10 @@ function calculateDeadlines_() {
   if (tier2DueDate ==''){
     spreadSheet.hideColumn(rangeColumnJ);
   }
-  else{
+  else {
     spreadSheet.unhideColumn(rangeColumnJ)
   }
+  
    // hiding/ unhiding column K 
   if (tier3DueDate ==''){
     spreadSheet.hideColumn(rangeColumnK);
@@ -95,34 +102,45 @@ function calculateDeadlines_() {
   else{
     spreadSheet.unhideColumn(rangeColumnK)
   }
+  
   // save value of tier1, tier2 and tier3 for later use
   PropertiesService.getDocumentProperties().setProperty('tier1DueDate', tier1DueDate);
   PropertiesService.getDocumentProperties().setProperty('tier2DueDate', tier2DueDate);
   PropertiesService.getDocumentProperties().setProperty('tier3DueDate', tier3DueDate);
+  
   var lastRow = spreadSheet.getLastRow();
+  
   // loop through each cell in column D to update column I, J K
   for (var c = 4; c < lastRow+1; c++) {
+  
     var startDate  = spreadSheet.getRange('D' + c ).getValue();
+    
     //finding value for column I
     var newTier1 = new Date(startDate.getTime()-tier1DueDate*3600000*24);
     var day = (newTier1+"").substring(0,3);
+    
     // if day is Sunday than move it to Monday
     if(day=='Sun'){
       newTier1 = new Date(newTier1.getTime()+1*3600000*24);
     }
+    
     // if day is Saturday than move it to Friday
     if(day=='Sat'){
       newTier1 = new Date(newTier1.getTime()-1*3600000*24);
     }
+    
     spreadSheet.getRange('I' + c ).setValue(newTier1); // setting value of active cell for Column I = tier1
+    
     //Finding Value for Column J if tier2 is  not empty
     if(tier2DueDate != ''){
       var newTier2 = new Date(startDate.getTime()-tier2DueDate*3600000*24);
       day = (newTier2+"").substring(0,3);
+      
       // if day is Sunday than move it to Monday
       if(day=='Sun'){
         newTier2 = new Date(newTier2.getTime()+1*3600000*24);
       }
+      
       // if day is Saturday than move it to Friday
       if(day=='Sat'){
         newTier2 = new Date(newTier2.getTime()-1*3600000*24);
@@ -132,16 +150,20 @@ function calculateDeadlines_() {
     
     //finding value for column K if tier3 is not empty
     if(tier3DueDate != ''){
+    
       var newTier3 = new Date(startDate.getTime()-tier3DueDate*3600000*24);
       day = (newTier3+"").substring(0,3);
+      
       // if day is Sunday than move it to Monday
       if(day=='Sun'){
         newTier3 = new Date(newTier3.getTime()+1*3600000*24);
       }
+      
       // if day is Saturday than move it to Friday
       if(day=='Sat'){
         var newTier3 = new Date(newTier3.getTime()-1*3600000*24);
       }
+      
       spreadSheet.getRange('K' + c ).setValue(newTier3); // setting value of active cell for Column K = tier2
     }
     
@@ -269,7 +291,13 @@ function processResponse_(eventArray) {
   var eventDate = new Date(dateSplit[2],dateSplit[0]-1,dateSplit[1]);
   var eventSponsor = eventArray[3];
   var spreadSheet = SpreadsheetApp.getActive(); //Communications Director Master sheet
+  
+  if (spreadSheet === null) {
+    spreadSheet = SpreadsheetApp.openById(TEST_PDC_SPREADSHEET_ID_)
+  }
+  
   var lastRow = spreadSheet.getLastRow();
+  
   // code for setting new event ordered chronologically by Col D.
   var dataValues = spreadSheet.getRange("D4:D" + lastRow).getValues(); 
   var flag = 0; // to check if row found in chronologically order, 0 = not found, 1 = found

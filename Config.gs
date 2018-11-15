@@ -20,9 +20,9 @@
 // =============
 
 var SCRIPT_NAME = "Promotion Deadliness Calendar";
-var SCRIPT_VERSION = "v1.3";
+var SCRIPT_VERSION = "v1.3.dev_ajr";
 
-var PRODUCTION_VERSION_ = true;
+var PRODUCTION_VERSION_ = false;
 
 // Log Library
 // -----------
@@ -36,6 +36,11 @@ var DEBUG_LOG_DISPLAY_FUNCTION_NAMES_ = PRODUCTION_VERSION_ ? BBLog.DisplayFunct
 var SEND_ERROR_EMAIL_ = PRODUCTION_VERSION_ ? true : false;
 var HANDLE_ERROR_ = Assert.HandleError.THROW;
 var ADMIN_EMAIL_ADDRESS_ = 'dev@cloudfire.media';
+
+// Tests
+// -----
+
+var TEST_PDC_SPREADSHEET_ID_ = '1Zn4IFvkahOa2mlR8pVWgbmD6icuOQzZAniiVZA6jrCQ' // Test Copy of Promotion Deadlines Calendar v1.3 (live)
 
 // Constants/Enums
 // ===============
