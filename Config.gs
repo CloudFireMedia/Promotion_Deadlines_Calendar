@@ -20,7 +20,7 @@
 // =============
 
 var SCRIPT_NAME = "Promotion Deadliness Calendar";
-var SCRIPT_VERSION = "v1.4";
+var SCRIPT_VERSION = "v1.4.1";
 
 var PRODUCTION_VERSION_ = true;
 
@@ -68,7 +68,7 @@ var PROMO_INITIATED_COLUMN_INDEX_ = 6;
 var SPONSOR_COLUMN_INDEX_         = 7;
 
 var DATA_SHEET_NAME_ = 'Communications Director Master';
-var SPONSOR_SHEET_NAME_ = 'Staff';
+var SPONSOR_SHEET_NAME_ = 'Staff Directory';
 var TIER_DUEDATE_SHEET_NAME_ ='Lookup: Tier Due Dates'; 
 
 var TIERS_ = ['Gold','Silver','Bronze'];
