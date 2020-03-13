@@ -44,7 +44,7 @@
       </select>
     </div>
     <br>
-    <button type="submit" class="btn btn-success" onclick="ValidateForm();">Submit</button>
+    <button type="submit" class="btn btn-success" onclick="validateForm();">Submit</button>
   </form>
   
  <script>
@@ -82,8 +82,7 @@ function buildTierOptionList(options) {
   }
 };
 
-// function to validate input
-function ValidateForm() {
+function validateForm() {
   if ($('#txtTitle').val()  == '' || $('#sdate').val()  == '') {
     return false;
   }

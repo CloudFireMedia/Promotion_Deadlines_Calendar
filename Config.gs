@@ -20,9 +20,9 @@
 // =============
 
 var SCRIPT_NAME = "Promotion Deadliness Calendar";
-var SCRIPT_VERSION = "v1.4.1";
+var SCRIPT_VERSION = "v1.4.1.dev";
 
-var PRODUCTION_VERSION_ = true;
+var PRODUCTION_VERSION_ = false;
 
 // Log Library
 // -----------
@@ -35,12 +35,23 @@ var DEBUG_LOG_DISPLAY_FUNCTION_NAMES_ = PRODUCTION_VERSION_ ? BBLog.DisplayFunct
 
 var SEND_ERROR_EMAIL_ = PRODUCTION_VERSION_ ? true : false;
 var HANDLE_ERROR_ = Assert.HandleError.THROW;
-var ADMIN_EMAIL_ADDRESS_ = 'dev@cloudfire.media';
+
+//var ADMIN_EMAIL_ADDRESS_ = PRODUCTION_VERSION_ ? 'dev@cloudfire.media' : '';
+var ADMIN_EMAIL_ADDRESS_ = PRODUCTION_VERSION_ ? 'dev@andrewroberts.net' : '';
 
 // Tests
 // -----
 
-var TEST_PDC_SPREADSHEET_ID_ = '1Zn4IFvkahOa2mlR8pVWgbmD6icuOQzZAniiVZA6jrCQ' // Test Copy of Promotion Deadlines Calendar v1.3 (live)
+var TEST_PDC_SPREADSHEET_ID_ = '1d2VkmYO3ulhNpX2VmeuVIr39186oJvq8TvDQy15ExBY'
+
+var TEST_GET_FORM_URL_ = false
+var TEST_GET_CALENDLY_URL_ = false
+
+if (PRODUCTION_VERSION_) {
+  if (!TEST_GET_FORM_URL_ || !TEST_GET_CALENDLY_URL_) {
+    throw new Error('Test flag set in production')
+  }
+}
 
 // Constants/Enums
 // ===============
@@ -63,11 +74,14 @@ var STAFF_DATA_MEMBER_COLUMN_INDEX_       = 13;
 
 // Promotion Deadslines Calendar
 var START_DATE_COLUMN_INDEX_      = 3;
-var EVENT_DATE_COLUMN_INDEX_      = 4;
+var EVENT_NAME_COLUMN_INDEX_      = 4;
 var PROMO_INITIATED_COLUMN_INDEX_ = 6;
 var SPONSOR_COLUMN_INDEX_         = 7;
+var TIER1_COLUMN_INDEX_           = 8;
+var TIER2_COLUMN_INDEX_           = 9;
+var TIER3_COLUMN_INDEX_           = 10;
 
-var DATA_SHEET_NAME_ = 'Communications Director Master';
+var CDM_SHEET_NAME_ = 'Communications Director Master';
 var SPONSOR_SHEET_NAME_ = 'Staff Directory';
 var TIER_DUEDATE_SHEET_NAME_ ='Lookup: Tier Due Dates'; 
 
@@ -86,7 +100,7 @@ var CONFIG_ = {
 This is an automated notice that the \
 {promoType} deadline for \
 {eventName} has lapsed without action by the staff sponsor, \
-{staffSponsor}",
+{sponsorTeam}",
       },
       
       oneDay : { //day before promoType deadline - sent to team leader
@@ -96,11 +110,14 @@ This is an automated notice that the \
 {promoType} \
 promotion deadline for your team's event, [ \
 {eventDate} ] \
-{eventName}, is tomorrow. This is the last reminder for a {promoType} promotion for your event.<br><br>If you would like to schedule promotion for your team's event please submit a <a href='\
+{eventName}, is tomorrow. This is the last reminder for a {promoType} promotion for your event.<br>\
+<br>If you would like to schedule promotion for your team's event please submit a <a href='\
 {formUrl}\'>{promoType} Promotion Request</a> or schedule a <a href='{calendlyUrl}'>Promotion Planning Meeting</a> by \
 {promoDeadline}. If you do not want to request \
-{promoType} promotion for this event, you may ignore this email. </b><br><br>Promotions Admin<br><br>--<br>P.S. If appropriate, please forward this email to the team member responsible for initiating a promotion request. <br><br> Need more information? Visit your team's <a href='\
-{spreadsheetUrl}'>Event Sponsorship Page</a> or reply to this email.\
+{promoType} promotion for this event, you may ignore this email. </b><br><br>Promotions Admin<br><br>\
+--<br>P.S. If appropriate, please forward this email to the team member responsible for initiating a \
+promotion request. <br><br> Need more information? Visit your team's <a href='\
+{sponsorSheetUrl}'>Event Sponsorship Page</a> or reply to this email.\
 ",
       },
       
@@ -115,8 +132,10 @@ promotion deadline for your team's event, [ \
 {formUrl}\
 '>Promotion Request</a> or schedule a <a href='{calendlyUrl}'>Promotion Planning Meeting</a> by \
 {promoDeadline}. If you do not want to request \
-{promoType} promotion for this event, you may ignore this email. </b><br><br>Promotions Admin<br><br>--<br>P.S. If appropriate, please forward this email to the team member responsible to initiating a promotion request. <br><br> Need more information? Visit your team's <a href='\
-{spreadsheetUrl}'>Event Sponsorship Page</a> or reply to this email.\
+{promoType} promotion for this event, you may ignore this email. </b><br><br>Promotions Admin<br><br>\
+--<br>P.S. If appropriate, please forward this email to the team member responsible to initiating \
+a promotion request. <br><br> Need more information? Visit your team's <a href='\
+{sponsorSheetUrl}'>Event Sponsorship Page</a> or reply to this email.\
 ",
       },
     },
@@ -137,9 +156,7 @@ promotion deadline for your team's event, [ \
 /* 
 function functionTemplate() {
 
-  Log_.functionEntryPoint()
-  
-  
+    
 
 } // functionTemplate() 
 */

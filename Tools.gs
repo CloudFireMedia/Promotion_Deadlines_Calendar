@@ -1,10 +1,12 @@
 function backupHeader_() {
 
-  var sheet = SpreadsheetApp.getActive().getSheetByName(DATA_SHEET_NAME_);
+  var spreadsheet = getSpreadsheet_();
+
+  var sheet = spreadsheet.getSheetByName(CDM_SHEET_NAME_);
   
-  if( ! SpreadsheetApp.getActiveSheet().getName() == sheet.getName()) {
+  if(!SpreadsheetApp.getActiveSheet().getName() == sheet.getName()) {
   
-    if(Browser.msgBox('Backup Header', "\
+    if(msgBox_('Backup Header', "\
 Only the "+sheet.getName()+' sheet can be backed up.\\n\\n\
 Switch to it?\
 ', Browser.Buttons.OK_CANCEL)
@@ -15,12 +17,12 @@ Switch to it?\
   
   //have to have frozen rows to know what to backup
   if( ! sheet.getFrozenRows()){
-    Browser.msgBox('Backup Header', "There does not appear to be a header defined.\\nPlease use View -> Freeze to set the rows you want as the header then run this again.", Browser.Buttons.OK)
+    msgBox_('Backup Header', "There does not appear to be a header defined.\\nPlease use View -> Freeze to set the rows you want as the header then run this again.", Browser.Buttons.OK)
     return;
   }
   
  //prompt to overwrite existing backup
-  if(Browser.msgBox('Backup Header', "\
+  if(msgBox_('Backup Header', "\
 This will backup the header rows so they can be restored later\\n\
 mostly in case the formulas are accidentally deleted.\\n\
 The frozen rows at the top are considered the header \\n\
@@ -47,16 +49,17 @@ Continue to backup header (and replace existing backup if any)?\
     wraps : range.getWraps(),
   }
   PropertiesService.getDocumentProperties().setProperty('epc:backup_header', JSON.stringify(header))
-  Browser.msgBox('Backup Header', "Backup complete.", Browser.Buttons.OK)
+  msgBox_('Backup Header', "Backup complete.", Browser.Buttons.OK)
 }
 
 function restoreHeader_() {
 
-  var sheet = SpreadsheetApp.getActive().getSheetByName(DATA_SHEET_NAME_);
+  var spreadsheet = getSpreadsheet_()
+  var sheet = spreadsheet.getSheetByName(CDM_SHEET_NAME_);
   
   //make sure we're on the right sheet
   if( ! SpreadsheetApp.getActiveSheet().getName() == sheet.getName()){
-    if(Browser.msgBox('Restore Header', "\
+    if(msgBox_('Restore Header', "\
 Only the "+sheet.getName()+' sheet can be restored.\\n\\n\
 Switch to it?\
 ', Browser.Buttons.OK_CANCEL)
@@ -68,14 +71,14 @@ Switch to it?\
   //check to see if there is a backup
   var backup = JSON.parse(PropertiesService.getDocumentProperties().getProperty('epc:backup_header'));
   if( ! backup){
-    Browser.msgBox('Restore Header', "There is no header backup to restore.", Browser.Buttons.OK);
+    msgBox_('Restore Header', "There is no header backup to restore.", Browser.Buttons.OK);
     return;
   }
 
   var headerRows = backup.values.length;
 
   //verify overrite current header
-  if(Browser.msgBox('Restore Header', "\
+  if(msgBox_('Restore Header', "\
 This will restore the header from the last backup\\n\
 overwriting the first "+headerRows+" rows in the sheet in the process. \\n\
 If that would replace data, stop and add additional rows for the header.  \\n\\n\
@@ -105,5 +108,5 @@ Continue to retore header and replace existing rows?\
   
   sheet.setFrozenRows(headerRows);
   
-  Browser.msgBox('Restore Header', "Header restored.", Browser.Buttons.OK);
+  msgBox_('Restore Header', "Header restored.", Browser.Buttons.OK);
 }

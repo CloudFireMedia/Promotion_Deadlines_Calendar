@@ -1,42 +1,15 @@
-var DateDiff = (function(ns) {
-
-  // Get the number of whole days
-  ns.inDays = function(d1, d2) {  
-    checkParams(d1, d2)    
-    return Math.floor((d2 - d1) / (24 * 3600 * 1000))
-  }
-  
-  ns.inWeeks = function(d1, d2) {  
-    checkParams(d1, d2)        
-    return parseInt((d2 - d1)/(24 * 3600 * 1000 * 7));
-  }
-  
-  ns.inMonths = function(d1, d2) {
-  
-    checkParams(d1, d2)    
-    
-    var d1Y = d1.getFullYear();
-    var d2Y = d2.getFullYear();
-    var d1M = d1.getMonth();
-    var d2M = d2.getMonth();
-    
-    return (d2M + 12 * d2Y) - (d1M + 12 * d1Y);
-  }
-  
-  inYears: function(d1, d2) {
-    checkParams(d1, d2)    
-    return d2.getFullYear() - d1.getFullYear();
-  }
-  
-  function checkParams(d1, d2) {
-    if (!(d1 instanceof Date) || !(d2 instanceof Date)) {
-      throw new Error('DateDiff - bad args. d1: ' + d1 + ', d2:' + d2)
+function getSpreadsheet_() {
+  var spreadsheet = SpreadsheetApp.getActive(); 
+  if (spreadsheet === null) {
+    Log_.fine('no spreadsheet')
+    if (!PRODUCTION_VERSION_) {
+      spreadsheet = SpreadsheetApp.openById(TEST_PDC_SPREADSHEET_ID_)
+    } else {
+      throw new Error('No active spreadsheet');
     }
   }
-  
-  return ns;
-  
-})(DateDiff || {})
+  return spreadsheet
+}
 
 function getFormattedDate_(date, format) { 
   date = date || new Date();
@@ -49,6 +22,20 @@ function getMidnight_(date){
   date = new Date(date);//don't change original date
   date.setHours(0,0,0,0);//set time to midnight
   return date;
+}
+
+function formatEventDate_(values, rowIndex) {
+  
+  // Add 2 hours to the eventDate as the timezone used in getValues uses a different timezone (GMT-5) than the spreadsheet, 
+  // (GMT-6) causing the date to change to the day before. Adding 2 hours stops the date being converted to the day before.
+  var eventDateOriginal = values[rowIndex][START_DATE_COLUMN_INDEX_]
+    
+  const inc = 2 * 1000 * 60 * 60 // 2 hours
+  var eventDate = new Date( eventDateOriginal.getTime() + inc )
+  Log_.fine('original eventDate' + eventDateOriginal)
+  Log_.fine('incremented eventDate' + eventDate)
+  
+  return eventDate
 }
 
 function vlookup_(needle, range, searchOffset, returnOffset) {
@@ -95,4 +82,20 @@ function getStaff_(spreadsheet) {//returns [{},{},...]
   },[]);
 
   return staff;
+}
+
+function toast_(msg, title, timeoutSeconds) {
+  var spreadsheet = SpreadsheetApp.getActive()
+  if (spreadsheet !== null) {
+    var localTitle = title || ''
+    var localTimeout = timeoutSeconds || null  
+    spreadsheet.toast(msg, localTitle, localTimeout)
+  }
+}
+
+function msgBox_(msg) {
+  var spreadsheet = SpreadsheetApp.getActive()
+  if (spreadsheet !== null) {  
+    Browser.msgBox(msg)
+  }
 }

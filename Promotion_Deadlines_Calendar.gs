@@ -33,43 +33,43 @@ var Log_
 
 var EVENT_HANDLERS_ = {
 
-//                           Name                            onError Message - "Failed to..."  Main Functionality
-//                           ----                            ---------------                   ------------------
+//                                    Name                                     onError Message - "Failed to..."  Main Functionality
+//                                    ----                                     ---------------                   ------------------
 
-  addRowBelow:               ['addRowBelow()',               'add row below',                  addRowBelow_],
-  deleteRow:                 ['deleteRow()',                 'delete row',                     deleteRow_],
-  calculateDeadlines:        ['calculateDeadlines()',        'calculate deadlines',            calculateDeadlines_],
-  newEventPopup:             ['newEventPopup()',             'show event popup',               newEventPopup_],
-  formatSheet:               ['formatSheet()',               'format sheet',                   formatSheet_],
-  restoreHeader:             ['restoreHeader()',             'restore header',                 restoreHeader_],
-  backupHeader:              ['backupHeader()',              'backup header',                  backupHeader_],
-  setupAutomation:           ['setupAutomation()',           'setup automation',               setupAutomation_],
-  disableAutomation:         ['disableAutomation()',         'disable automation',             disableAutomation_],
-  checkDeadlines:            ['checkDeadlines()',            'check deadlines',                checkDeadlines_],
-  checkTeamSheetsForErrors:  ['checkTeamSheetsForErrors()',  'check Team Sheets For Errors',   checkTeamSheetsForErrors_],
-  dailyTrigger:              ['dailyTrigger()',              'run daily trigger',              dailyTrigger_],
-  fillSponsor:               ['fillSponsor()',               'fill sponsor in popup',          fillSponsor_],
-  fillTier:                  ['fillTier()',                  'fill tiers in popup',            fillTier_],
-  processResponse:           ['processResponse()',           'process response',               processResponse_],
-  onEdit:                    ['onEdit()',                    'onEdit',                         onEdit_],
+  addRowBelow:                        ['addRowBelow()',                        'add row below',                  addRowBelow_],
+  deleteRow:                          ['deleteRow()',                          'delete row',                     deleteRow_],
+  calculateDeadlines:                 ['calculateDeadlines()',                 'calculate deadlines',            calculateDeadlines_],
+  newEventPopup:                      ['newEventPopup()',                      'show event popup',               newEventPopup_],
+  restoreHeader:                      ['restoreHeader()',                      'restore header',                 restoreHeader_],
+  backupHeader:                       ['backupHeader()',                       'backup header',                  backupHeader_],
+  setupAutomation:                    ['setupAutomation()',                    'setup automation',               setupAutomation_],
+  disableAutomation:                  ['disableAutomation()',                  'disable automation',             disableAutomation_],
+  checkDeadlines:                     ['checkDeadlines()',                     'check deadlines',                checkDeadlines_],
+  checkTeamSheetsForErrors:           ['checkTeamSheetsForErrors()',           'check Team Sheets For Errors',   checkTeamSheetsForErrors_],
+  dailyTrigger:                       ['dailyTrigger()',                       'run daily trigger',              dailyTrigger_],
+  fillSponsor:                        ['fillSponsor()',                        'fill sponsor in popup',          fillSponsor_],
+  fillTier:                           ['fillTier()',                           'fill tiers in popup',            fillTier_],
+  processResponse:                    ['processResponse()',                    'process response',               processResponse_],
+  onEdit:                             ['onEdit()',                             'onEdit',                         onEdit_],
+  formatCommunicationsDirectorMaster: ['formatCommunicationsDirectorMaster()', 'format CDM tab',                 formatCommunicationsDirectorMaster_],  
 }
 
-function addRowBelow(args)              {return eventHandler_(EVENT_HANDLERS_.addRowBelow, args)}
-function deleteRow(args)                {return eventHandler_(EVENT_HANDLERS_.deleteRow, args)}
-function calculateDeadlines(args)       {return eventHandler_(EVENT_HANDLERS_.calculateDeadlines, args)}
-function newEventPopup(args)            {return eventHandler_(EVENT_HANDLERS_.newEventPopup, args)}
-function formatSheet(args)              {return eventHandler_(EVENT_HANDLERS_.formatSheet, args)}
-function restoreHeader(args)            {return eventHandler_(EVENT_HANDLERS_.restoreHeader, args)}
-function backupHeader(args)             {return eventHandler_(EVENT_HANDLERS_.backupHeader, args)}
-function setupAutomation(args)          {return eventHandler_(EVENT_HANDLERS_.setupAutomation, args)}
-function disableAutomation(args)        {return eventHandler_(EVENT_HANDLERS_.disableAutomation, args)}
-function checkDeadlines(args)           {return eventHandler_(EVENT_HANDLERS_.checkDeadlines, args)}
-function checkTeamSheetsForErrors(args) {return eventHandler_(EVENT_HANDLERS_.checkTeamSheetsForErrors, args)}
-function dailyTrigger(args)             {return eventHandler_(EVENT_HANDLERS_.dailyTrigger, args)}
-function fillSponsor(args)              {return eventHandler_(EVENT_HANDLERS_.fillSponsor, args)}
-function fillTier(args)                 {return eventHandler_(EVENT_HANDLERS_.fillTier, args)}
-function processResponse(args)          {return eventHandler_(EVENT_HANDLERS_.processResponse, args)}
-function onEdit(args)                   {return eventHandler_(EVENT_HANDLERS_.onEdit, args)}
+function addRowBelow(args)                        {return eventHandler_(EVENT_HANDLERS_.addRowBelow, args)}
+function deleteRow(args)                          {return eventHandler_(EVENT_HANDLERS_.deleteRow, args)}
+function calculateDeadlines(args)                 {return eventHandler_(EVENT_HANDLERS_.calculateDeadlines, args)}
+function newEventPopup(args)                      {return eventHandler_(EVENT_HANDLERS_.newEventPopup, args)}
+function restoreHeader(args)                      {return eventHandler_(EVENT_HANDLERS_.restoreHeader, args)}
+function backupHeader(args)                       {return eventHandler_(EVENT_HANDLERS_.backupHeader, args)}
+function setupAutomation(args)                    {return eventHandler_(EVENT_HANDLERS_.setupAutomation, args)}
+function disableAutomation(args)                  {return eventHandler_(EVENT_HANDLERS_.disableAutomation, args)}
+function checkDeadlines(args)                     {return eventHandler_(EVENT_HANDLERS_.checkDeadlines, args)}
+function checkTeamSheetsForErrors(args)           {return eventHandler_(EVENT_HANDLERS_.checkTeamSheetsForErrors, args)}
+function dailyTrigger(args)                       {return eventHandler_(EVENT_HANDLERS_.dailyTrigger, args)}
+function fillSponsor(args)                        {return eventHandler_(EVENT_HANDLERS_.fillSponsor, args)}
+function fillTier(args)                           {return eventHandler_(EVENT_HANDLERS_.fillTier, args)}
+function processResponse(args)                    {return eventHandler_(EVENT_HANDLERS_.processResponse, args)}
+function onEdit(args)                             {return eventHandler_(EVENT_HANDLERS_.onEdit, args)}
+function formatCommunicationsDirectorMaster(args) {return eventHandler_(EVENT_HANDLERS_.formatCommunicationsDirectorMaster, args)}
 
 // Private Functions
 // =================
@@ -110,6 +110,8 @@ function eventHandler_(config, args) {
     
   } catch (error) {
   
+    toast_("", "", 0.01) // hack to close toast
+  
     var handleError = Assert.HandleError.DISPLAY_FULL
 
     if (!PRODUCTION_VERSION_) {
@@ -127,7 +129,7 @@ function eventHandler_(config, args) {
       scriptVersion:  SCRIPT_VERSION, 
     }
 
-    Assert.handleError(assertConfig) 
+    Assert.handleError(assertConfig)  
   }
   
 } // eventHandler_()
